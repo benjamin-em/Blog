@@ -6,4 +6,4 @@ You can use the [first page editor on GitHub](https://github.com/EEEmien/emien.g
 
 ### 目录
 
-[fastAI学习笔记-chapter2-production](fastAI\ 学习笔记-02-production.md)
+[fastAI学习笔记-chapter2-production](fastAI学习笔记-02-production.md)
