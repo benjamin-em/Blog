@@ -2,7 +2,7 @@
 
 You can use the [editor on GitHub](https://github.com/EEEmien/emien.github.io/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
-Guide of editing the pages 
+Guide(https://eeemien.github.io/emien.github.io/guide.md) of editing the pages 
 
 ### 目录
 
