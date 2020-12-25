@@ -111,3 +111,4 @@ fine_tune是微调，理解不是很多，下次在第一章笔记时再说。
 interp = ClassificationInterpretation.from_learner(learn)
 interp.plot_confusion_matrix()
 ```
+![confusion merix]img(confusion_metrix.jpg)
