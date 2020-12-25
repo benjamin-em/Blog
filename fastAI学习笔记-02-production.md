@@ -132,7 +132,7 @@ FastAI 有个函数ImageClassifierCleaner可以以图形界面的方式让我们
 cleaner = ImageClassifierCleaner(learn)
 cleaner
 ```
-![image_clean](image/image_clean.jpg)
+![image_clean](img/image_clean.jpg)
 
 然后把无效图片(如上图中中的机械长颈鹿)删除,这里又出现了unlink() 这个方法，unlink 实际是个删除函数.  
 我的理解：当我们在上图中图片下拉框选择delete是，实际就是把该图片路径或索引放到了cleaner的"delete"容器中(可能是个列表之类的).
