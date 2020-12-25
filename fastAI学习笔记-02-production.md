@@ -145,7 +145,7 @@ for idx in cleaner.delete(): cleaner.fns[idx].unlink()
 for idx,cat in cleaner.change(): shutil.move(str(cleaner.fns[idx]), path/cat)
 ```
 
- ***这里对书中原文有个疑问，从函数来开，要在训练之后再做数据清洗，因为learn是作为参数传给数据清洗函数ImageClassifierCleaner().
+ ***这里对书中原文有个疑问，从函数来看，需要在训练之后再做数据清洗，因为learn是作为参数传给数据清洗函数ImageClassifierCleaner().
 这个是否意味着clean之后，训练过的模型也跟着有所变化呢？如果不是，那做了数据清洗后是不是得重新执行训练才能提高模型的准确度？***
 
 ### 模型的使用
