@@ -23,6 +23,7 @@
 |Overfitting | Training a model in such a way that it _remembers_ specific features of the input data, rather than generalizing well to data not seen during training
 |CNN | Convolutional neural network; a type of neural network that works particularly well for computer vision tasks
 
+## 疑问
 **关于fine tune这里有个问题，根据定义，fine tune是对一个已经训练好的模型进行“微调”，用于一个 _不同_ 的任务, 但是很多地方在训练之后，使用模型之前也会进行fine tune**
  如[第二章](https://colab.research.google.com/github/fastai/fastbook/blob/master/02_production.ipynb)中(当然第一章也有很多这样的例子)
  
