@@ -3,7 +3,8 @@
 这是第二篇学习笔记博客，但记录的是[fastAI课程](https://course.fast.ai/)第一章的学习笔记.
 这里记录一些概念/术语的理解。
 
-###术语
+### 术语
+
 | Term | Meaning
 | ---- | ---- 
 |Label | The data that we're trying to predict, such as "dog" or "cat"
