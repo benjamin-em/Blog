@@ -122,6 +122,8 @@ len(stacked_threes.shape)
 mean3 = stacked_threes.mean(0)
 show_image(mean3);
 ```
-从上面的代码可以看出,传入mean()的参数是0,所以高应该是“第0阶”,
+从上面的代码可以看出,传入mean()的参数是0,所以高应该是“第0阶”,也就是沿着Rank0 轴,每个格子取一次平均值,得到一个二阶的张量mean3,
+mean3 就是一个"平均图像"3
 
-![tensor_image](img/tensor_img.jpg)
+
+![tensor_image](img/tensor_img.jpg)   ![mean3_img](img/mean3_img.jpg)
