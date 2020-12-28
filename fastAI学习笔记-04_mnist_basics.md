@@ -126,4 +126,4 @@ show_image(mean3);
 mean3 就是一个"平均图像"3
 
 
-![tensor_image](img/tensor_img.jpg)   ![mean3_img](img/mean3_img.jpg)
+<img src="img/tensor_img.jpg" style="zoom:50%" />   ![mean3_img](img/mean3_img.jpg)
