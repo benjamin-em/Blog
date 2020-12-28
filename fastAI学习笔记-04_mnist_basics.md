@@ -86,3 +86,42 @@ tensor([[  0,   0,   0,   0,   0,   0],
 ```
 
 ### 像素相似度
+书原文让我们先自己思考如何实现数字识别,我还是在以传统的思维在思考：
+自己找数字的特征：例如“7”,从横到下面的撇，只有一个转折过程，3：有两次弧,并且第一个弧到第二个弧之间有一次回折的过程。
+接下来思考检查像素判断是否有这样的规律。但是思考过程中会发现，实现方式实在太难了。再来看书中介绍的做法。
+
+>So, here is a first idea: how about we find the average pixel value for every pixel of the 3s, then do the same for the 7s. This will give us two group averages, defining what we might call the "ideal" 3 and 7. Then, to classify an image as one digit or the other, we see which of these two ideal digits the image is most similar to. This certainly seems like it should be better than nothing, so it will make a good baseline.
+Step one for our simple model is to get the average of pixel values for each of our two groups. In the process of doing this, we will learn a lot of neat Python numeric programming tricks!  
+Let's create a tensor containing all of our 3s stacked together. We already know how to create a tensor containing a single image. To create a tensor containing all the images in a directory, we will first use a Python list comprehension to create a plain list of the single image tensors.
+
+```
+seven_tensors = [tensor(Image.open(o)) for o in sevens]
+three_tensors = [tensor(Image.open(o)) for o in threes]
+len(three_tensors),len(seven_tensors)
+# 这里会显示: (6131, 6265)
+```
+这里用到了列表生成式,这是python一个非常有用的高级语法，可以对原有的列表的元素进行批量操作,生成新列表,也可以过滤列表中的元素,例如:
+```new_list = [f(o) for o in a_list if o>0]``` 对a_list 中大于0的元素过滤出来,然后将过滤出来的每个元素执行传入f()函数,将每个返回的结果生成一个新的列表new_list,
+相对于使用循环来说,这个语法不仅简洁,而且速度快.
+
+接下来,使用torch.stack()把列表中的所有二维(阶)tensor进行堆叠,生成一个三维(阶)的tensor,
+```
+stacked_sevens = torch.stack(seven_tensors).float()/255
+stacked_threes = torch.stack(three_tensors).float()/255
+stacked_threes.shape
+```
+这里会输出打印 ```torch.Size([6131, 28, 28])```  
+下面是计算tensor的阶数,就是shape的长度
+```
+len(stacked_threes.shape)
+```
+显然stacked_threes是三阶张量,另外也可以用```stacked_threes.ndim```计算阶数
+
+对堆叠的每个像素计算平均值,(想象二维图片列是长,行是宽,堆叠的数量是高)也就是计算"高"上所有数字的平均值.
+```
+mean3 = stacked_threes.mean(0)
+show_image(mean3);
+```
+从上面的代码可以看出,传入mean()的参数是0,所以高应该是“第0阶”,
+
+![tensor_image](img/tensor_img.jpg)
