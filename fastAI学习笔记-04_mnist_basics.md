@@ -144,3 +144,169 @@ F.l1_loss(a_3.float().mean7), F.mse_loss(a_3,mean7).sqrt()
 # 这里会显示(tensor(0.1586), tensor(0.3021))
 ```
 这里提到了L1损失函数和均方差损失函数,L1范数的概念,简单理解起来就是的对所有差值取平均值,虽然描述简单粗暴不准确,但更容易理解。MSE损失-均方差，就是差值的平方取平均值。
+
+### NumPy Arrays 和 PyTorch Tensors
+```
+data = [[1,2,3],[4,5,6]]
+arr = array (data)
+tns = tensor(data)
+```
+```
+arr  # numpy
+#会打印：
+array([[1, 2, 3],
+       [4, 5, 6]])
+```
+```
+tns  # pytorch
+#会打印：
+tensor([[1, 2, 3],
+        [4, 5, 6]])
+```
+用起来几乎一模一样
+
+```
+tns[1]
+```
+表示第取一行```tensor([4, 5, 6])```
+
+```
+tns[:,1]
+```
+表示取第1列，冒号表示取这一轴上的所有元素，```tensor([2, 5])```
+
+tensor可以和python切片的语法结合：```[start:end]```包含```start```,不包含```end```
+```
+tns[1, 1:3]
+#会打印
+tensor([5, 6])
+```
+
+也可以和数字进行加减乘除运算:
+```
+tns+1
+#会打印
+tensor([[2, 3, 4],
+        [5, 6, 7]])
+```
+
+tensor的类型:
+```
+tns.type()
+#会打印
+torch.LongTensor
+```
+
+可以对类型进行自动转换：
+```
+tns*1.5
+#会打印
+tensor([[1.5000, 3.0000, 4.5000],
+        [6.0000, 7.5000, 9.0000]])
+```
+
+### 使用广播计算指标
+
+模型建立了,我们需要一些数据验证训练的效果,也就是前几章说的用验证集评估训练效果。
+有个valid目录,这就是提供的验证集的目录。
+```
+valid_3_tens = torch.stack([tensor(Image.open(o)) 
+                            for o in (path/'valid'/'3').ls()])
+valid_3_tens = valid_3_tens.float()/255
+valid_7_tens = torch.stack([tensor(Image.open(o)) 
+                            for o in (path/'valid'/'7').ls()])
+valid_7_tens = valid_7_tens.float()/255
+valid_3_tens.shape,valid_7_tens.shape
+#这里会打印
+(torch.Size([1010, 28, 28]), torch.Size([1028, 28, 28]))
+```
+
+在定义一个函数：
+```
+def mnist_distance(a,b): return (a-b).abs().mean((-1,-2))
+mnist_distance(a_3, mean3)
+#这里会打印 tensor(0.1114)
+```
+这里还不是很清楚```((-1,-2))```参数的含义,先往下看,
+书中试着把两个不同阶的张量传进这个函数
+```
+valid_3_dist = mnist_distance(valid_3_tens, mean3)
+valid_3_dist, valid_3_dist.shape
+#这里打印了
+(tensor([0.1474, 0.1071, 0.1349,  ..., 0.1343, 0.1370, 0.1305]),
+ torch.Size([1010]))
+```
+神奇的是,valid_3_tens是一个三阶张量,而mean3是一个二阶张量,书中说的是
+>it tries to perform a simple subtraction operation between two tensors of different ranks, will use broadcasting.
+两个不同阶数的张量之间计算会使用到"广播"的机制,这让我联想到了python的map()函数
+```
+def f(x): return x * x
+r = map(f, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+list(r)
+#这里会显示[1, 4, 9, 16, 25, 36, 49, 64, 81]
+```
+但注意不同阶数的向量之间可以通过广播机制运算,但是同一阶不同大小的张量不能运算,例如
+
+相同阶,并且每一阶大小相同(都是3)可以运算
+```
+tensor([1,2,3]) + tensor([1,1,1])
+```
+会得到
+```
+tensor([2, 3, 4])
+```
+
+阶数不同,但是低阶张量所有阶和高阶的张量某(几)阶大小一样,可以通过广播机制运算
+```
+tensor([1,2,3]) + tensor([[1,1,1],[2,3,4]])```
+```
+第一个张量被扩充成2阶,会得到
+```
+tensor([[2, 3, 4],
+        [3, 5, 7]])
+```
+
+但是我尝试```tensor([1,2,3]) + tensor([1,1])```会报错：
+```
+---------------------------------------------------------------------------
+RuntimeError                              Traceback (most recent call last)
+<ipython-input-163-7239f80c13bb> in <module>()
+----> 1 tensor([1,2,3]) + tensor([1,1])
+
+RuntimeError: The size of tensor a (3) must match the size of tensor b (2) at non-singleton dimension 0
+```
+
+看看形状
+```
+(valid_3_tens-mean3).shape
+```
+显示,第0阶大小1010,第1,2阶大小是28 - 每张图片是28\*28的大小
+```
+torch.Size([1010, 28, 28])
+```
+我们的函数调用了mean((-1,-2))。 元组(-1,-2)代表一系列轴。 在Python中,-1表示最后一个元素，-2表示倒数第二个元素。 因此，在这种情况下，这告诉PyTorch我们想要取均值，该均值的范围为张量的最后两个轴所索引的值。 最后两个轴是图像的水平和垂直尺寸。 在最后两个轴上取平均值后，我们只剩下第一个张量轴，该轴在我们的图像上进行索引，这就是我们最终大小为(1010)的原因。 换句话说，对于每张图像,我们均对该图像中所有像素的强度进行平均。
+
+书中提到,
+>Pytorch 实际并没有把 ```mean3```copy 1010次,It pretends it were a tensor of that shape, but doesn't actually allocate any additional memory
+>It does the whole calculation in C (or, if you're using a GPU, in CUDA, the equivalent of C on the GPU), tens of thousands of times faster than pure Python (up to millions of times faster on a GPU!).
+
+```
+def is_3(x): return mnist_distance(x,mean3) < mnist_distance(x,mean7)
+
+is_3(a_3), is_3(a_3).float()
+# 会显示
+# (tensor(True), tensor(1.))
+
+is_3(valid_3_tens)
+# 会显示
+# tensor([ True,  True,  True,  ..., False,  True,  True])
+
+accuracy_3s =      is_3(valid_3_tens).float() .mean()
+accuracy_7s = (1 - is_3(valid_7_tens).float()).mean()
+
+accuracy_3s,accuracy_7s,(accuracy_3s+accuracy_7s)/2
+#会显示(tensor(0.9168), tensor(0.9854), tensor(0.9511))
+```
+
+本以为这就是机器学习,然而
+>To do better, perhaps it is time to try a system that does some real learning—that is, that can automatically modify itself to improve its performance. In other words, it's time to talk about the training process, and SGD.
