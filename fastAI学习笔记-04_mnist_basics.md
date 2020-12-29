@@ -137,3 +137,10 @@ show_image(a_3);
 ```dist_3_abs = (a_3 - mean3).abs().mean()```
 2. 对“平均图像”和待测图像每个像素取差值(绝对值),在对所差值的平方和取平均值,然后再开方.例如  
 ```dist_3_sqr = ((a_3 - mean3)**2).mean().sqrt()```
+
+PyTorch 对上述两种计算提供了 _损失函数_,这些函数在```torch.nn.functional```,PyTorch 推荐```F```的方式导入：```import torch.nn.functional as F```
+```
+F.l1_loss(a_3.float().mean7), F.mse_loss(a_3,mean7).sqrt()
+# 这里会显示(tensor(0.1586), tensor(0.3021))
+```
+这里提到了L1损失函数和均方差损失函数,L1范数的概念,简单理解起来就是的对所有差值取平均值,虽然描述简单粗暴不准确,但更容易理解。MSE损失-均方差，就是差值的平方取平均值。
