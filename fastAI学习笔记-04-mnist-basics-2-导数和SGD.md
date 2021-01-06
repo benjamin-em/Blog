@@ -35,3 +35,51 @@ yt.backward()
 xt.grad
 #这里会打印 tensor([ 76., 124., 664.]) , 即向量的导数值.
 ```
+
+### SGD应用举例
+想象过山车爬坡又下来的情形：
+上坡速度越来越慢,到顶后下坡速度又越来越快。20秒,每秒测一次速度.
+```
+time = torch.arange(0,20).float();
+
+speed = torch.randn(20)*3 + 0.75*(time-9.5)**2 + 1  #这里加了一个随机速度.
+
+plt.scatter(time,speed); #绘制时间/速度坐标图像.
+```
+我们**猜想**这个函数曲线是一个二次函数```a*(time**2)+(b*time)+c```
+
+为了区分**输入 - input**和**参数 - parameter**, 将**输入**和**参数**分开传进一个函数：
+```
+def f(t, params):
+    a,b,c = params
+    return a*(t**2) + (b*t) + c
+```
+为了找到**最佳**二次函数,只需要找到最合适的参数```a,b,c```. 用均方差来衡量是否**最佳**
+```
+def mse(preds, targets): return ((preds-targets)**2).mean().sqrt()
+```
+这里```preds```将会传入预测的值,也就是函数```f(t, params)```的返回值. ```targets```将会传入实际测量的速度.
+
+现在用7步：
+#### 第一步：初始化参数
+最佳初始一组参数就可以,用```requires_grad_```告诉PyTorch需要跟踪他们的梯度.
+```
+params = torch.randn(3).requires_grad_()
+
+orig_params = params.clone()
+```
+#### 第二部：计算预测值：
+```
+preds = f(time, params)
+# 这里time就是前面定义的0-19秒,每秒的时刻.
+```
+这个定义一个函数画出图形：
+```
+def show_preds(preds, ax=None):
+    if ax is None: ax=plt.subplots()[1]
+    ax.scatter(time, speed)
+    ax.scatter(time, to_np(preds), color='red')
+    ax.set_ylim(-20,100)
+
+show_preds(preds)
+```
