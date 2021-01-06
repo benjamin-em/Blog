@@ -68,7 +68,7 @@ params = torch.randn(3).requires_grad_()
 
 orig_params = params.clone()
 ```
-#### 第二部：计算预测值：
+#### 第二步：计算预测值：
 ```
 preds = f(time, params)
 # 这里time就是前面定义的0-19秒,每秒的时刻.
@@ -83,3 +83,27 @@ def show_preds(preds, ax=None):
 
 show_preds(preds)
 ```
+![show_pred](img/show_preds.jpg)
+#### 第三步：计算loss：
+```
+# mse() 为 ((preds-targets)**2).mean().sqrt()
+# preds是传入不同的时刻t, a*(t**2) + (b*t) + c的计算的speed值, 
+# targes,在不同的t测量出来的speed. 
+
+loss = mse(preds, speed)
+loss
+#这里打印 tensor(25.2016, grad_fn=<SqrtBackward>)
+```
+我们目标是减小均方差,**所以需要计算梯度**
+#### 第四步：计算梯度
+计算梯度, 也就是说计算一组一个近似值,指导**参数**如何变化.
+```
+loss.backward()
+params.grad
+tensor([-0.0052,  0.1076, -0.3424])
+```
+需要注意的是这里是对params求梯度也就是对下面的```a,b,c```求梯度.
+ ```
+ (a*t**2 + b*t + c - speed)**2).mean().sqrt()
+ ```
+
