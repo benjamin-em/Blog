@@ -10,5 +10,5 @@ You can use the [first page editor on GitHub](https://github.com/EEEmien/emien.g
 
 [fastAI学习笔记-chapter1-introduction](fastAI学习笔记-01-intro.md)
 
-[fastAI学习笔记-chapter4-mnist_basics](fastAI学习笔记-04_mnist_basics.md)
+[fastAI学习笔记-chapter4-mnist_basics-1](fastAI学习笔记-04_mnist_basics-1.md)
 
