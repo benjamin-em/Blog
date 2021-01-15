@@ -125,7 +125,7 @@ show_image(mean3);
 从上面的代码可以看出,传入mean()的参数是0,所以高应该是“第0阶”,也就是沿着Rank0 轴,每个格子取一次平均值,得到一个二阶的张量mean3,
 mean3 就是一个"平均图像"3
 
-<img src="img/tensor_img.jpg" style="zoom:50%" />   ![mean3_img](img/mean3_img.jpg)
+<img src="img/tensor_img.jpg" style="zoom:50%" />   ![mean3_img](img/mean3_img.jpg)  
 下面代码看堆叠在第2层的图像,由此可以猜出 tensor的阶数排列为tensor_3rank[第一阶][第二阶][第三阶]
 ```
 a_3 = stacked_threes[1]
