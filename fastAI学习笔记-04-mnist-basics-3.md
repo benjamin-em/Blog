@@ -64,6 +64,9 @@ bias = init_params(1)
 # 这里打印输出 tensor([25.2817], grad_fn=<AddBackward0>)
 ```
 ***疑问，为什么不是每个像素都有一个```bias```，而是一个图片的像素都是一个bias***  
+>在[fastAI 论坛发帖](https://forums.fast.ai/t/in-04-mnist-basics-why-bias-is-not-for-every-independent-pixel/84769),[Message
+jimmiemunyi](https://forums.fast.ai/u/jimmiemunyi) 拿了一个神经元的图解释,确实是对sum加bias, 但似乎没有解释为什么bias加在这个地方.
+
 现在要计算所有图片的预测值,在python中,用矩阵的乘法比循环会快很多,操作符```@```表示矩阵相乘.
 ```
 def linear1(xb): return xb@weights + bias
