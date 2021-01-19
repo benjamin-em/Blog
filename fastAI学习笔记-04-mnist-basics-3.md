@@ -107,3 +107,48 @@ tensor([[ True],
         [False]])
 '''
 ```
+```
+corrects.float().mean().itern()
+# 会打印 0.4912068545818329
+```
+
+把weights 做微小调整：
+```
+weights[0] *= 1.0001
+preds = linear1(train_x)
+((preds>0.0).float() == train_y).float().mean().item()
+
+# 会输出0.4912068545818329
+```
+可以看到调整了weights后,输出结果没有任何变化.因为函数的梯度是它的斜率或陡度,即函数值变化的幅度除以输入值改变的幅度：
+```(y_new - y_old)/(x_new - x_old)```. 当x_new和x_old非常接近时,就可以很好的渐变.但是从输出来看,只有预测值从3变为7或由7变为3时,预测精度才会有变化。但因为weights 从x_old到x_new的变化太小,不足以导致y的变化.所以```(y_new - y_old)```几乎始终为0.换句话说,几乎所有地方的梯度都为0.
+但是我们需要使用SGD改进模型,梯度都0的话就不能改进这个模型了.  
+为了解决这个问题,我们要用一个损失函数,当我们的权重得出更好的预测时,它会返回更好的loss .更好的预测，即：
+判断为3的可能性越大,分数越高,判断为7的可能性越大(即意味着判断为3的可能性越小)则分数越低.  
+
+损失函数输入的不是图像本身,而是来自模型的预测值.用一个参数prds表示介于0和1之间的值,每个值表示预测为3的可能性.
+损失函数的目的是衡量预测值和真实值(即target也称为label),他表明图像的实际情况是否真的为3.   
+假设我们有三个图像,分别是3,7,3 并且假设我们模型预测第一为3的可信度是0.9，第二个不为3(为7)的可信度为0.4, 第三个为不为3(为7)的可信度为0.2 。其中前两个判断真实值一致,而第三个判断错了.
+```
+trgts = tensor([1, 0, 1])
+prds  = tensor([0.9, 0.4, 0.2])
+```
+先尝试一个损失函数loss function衡量预测值和真实值之间的差距
+```
+def mnist_loss(predictions, targets):
+    return torch.where(targets==1, 1-predictions, predictions).mean()
+```
+其中``` torch.where(targets==1, 1-predictions, predictions).mean()```类似于C语言语句```targets == 1 ? 1-predictions : predictions```
+也就是说如果预测为3(即trgts为1)，则取1-predictions表示"错误度". 如果预测不为3，则直接取predictions表示"错误度"，然后取"错误度"的平均值表示损失loss.
+```
+torch.where(trgts==1, 1-prds, prds)
+# 输出tensor([0.1000, 0.4000, 0.8000])
+```
+从上面的输出值可以看出这个值小,"预测的正确性"越大.然后对这一组取平均值,就可以很好的反应“预测好不好”
+```
+mnist_loss(prds,trgts)
+# 输出tensor(0.4333)
+```
+如果我们把prds中的0.2变为0.8,
+
+### Sigmoid
