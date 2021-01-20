@@ -221,3 +221,145 @@ list(dl)
  (tensor([22, 20]), ('w', 'u'))] 
  
  ### Putting It All Together
+有了前面的基础,我们需要实现一个像这样的函数进行每个epoch的计算.
+```
+for x,y in dl:
+    pred = model(x)
+    loss = loss_func(pred, y)
+    loss.backward()
+    parameters -= parameters.grad * lr
+```
+
+首先初始化参数：weights和bias
+```
+weights = init_params((28*28,1))
+bias = init_params(1)
+```
+基于```Dataset```创建一个```DataLoader```
+```
+dl = DataLoader(dset, batch_size=256)
+xb,yb = first(dl)
+xb.shape,yb.shape
+```
+>(torch.Size([256, 784]), torch.Size([256, 1]))
+
+对验证集做同样的操作：
+```
+valid_dl = DataLoader(valid_dset, batch_size=256)
+```
+创建一个长度为4的mini-batch,用于测试:
+```
+batch = train_x[:4]
+batch.shape
+```
+>torch.Size([4, 784])
+```
+preds = linear1(batch)
+preds
+```
+>tensor([[16.4576],  
+        [ 9.1995],  
+        [ 5.2920],  
+        [-6.3847]], grad_fn=<AddBackward0>)  
+```
+loss = mnist_loss(preds, train_y[:4])
+loss
+```
+>tensor(0.2509, grad_fn=<MeanBackward0>)  
+
+计算梯度:
+```
+loss.backward()
+weights.grad.shape,weights.grad.mean(),bias.grad
+```
+>(torch.Size([784, 1]), tensor(-0.0003), tensor([-0.0017]))
+
+把上面这些放到一个函数中：
+```
+def calc_grad(xb, yb, model):
+    preds = model(xb)
+    loss = mnist_loss(preds, yb)
+    loss.backward()
+```
+然后测试：
+```
+calc_grad(batch, train_y[:4], linear1)
+weights.grad.mean(),bias.grad
+```
+>(tensor(-0.0005), tensor([-0.0034]))
+如果上面代码执行两次：
+```
+calc_grad(batch, train_y[:4], linear1)
+weights.grad.mean(),bias.grad
+```
+>(tensor(-0.0008), tensor([-0.0051]))  
+看到计算的梯度值不一样了。这是因为```loss.backward```这个操作会把```loss```的梯度值累加到当前存储的任何梯度值中.
+>这里应该这样理解:在第一次执行calc_grad()时,调用了loss.backward(),它计算了一次梯度,并存在weights.grad和bais.grad中,在第二次计算时,会把新的结果累加到上一次的weights.grad和bias.grad中.  
+所以在下一次backward时,应该先把梯度置零:
+```
+weights.grad.zero_()
+bias.grad.zero_();
+```
+>这应该和上[一篇笔记第五步调整权重](fastAI学习笔记-04-mnist-basics-2-导数和SGD.md#第五步调整权重)中的```params.grad = None```是等效的
+>另外需要注意的是```zero_```这样以下划线结尾的方法是**原位操作**,即操作后会覆盖本身的值
+
+现在只剩下一步,根据梯度(gradient)和学习率(learning rate)对weights和bias进行更新.
+>**这句话不是很理解**：When we do so, we have to tell PyTorch not to take the gradient of this step too—otherwise things will get very confusing when we try to compute the derivative at the next batch! If we assign to the data attribute of a tensor then PyTorch will not take the gradient of that step.   
+
+```
+def train_epoch(model, lr, params):
+    for xb,yb in dl:
+        calc_grad(xb, yb, model)
+        for p in params:
+            p.data -= p.grad*lr
+            p.grad.zero_()
+```
+上面的```params```将会包含weights和bias,也就是说第二层的for循环会分别对weights和bias进行调整然后将它们的梯度置零.  
+我们还要观察对验证集预测的准确度(accuracy),判断模型好不好,如
+```
+(preds>0.0).float() == train_y[:4]
+```
+>tensor([[ True],  
+        [ True],  
+        [ True],  
+        [False]])  
+用这个函数计算验证集预测的准确度.(注意这个准确度也就是上文提到的**总体准确性metrics**)
+```        
+def batch_accuracy(xb, yb):
+    preds = xb.sigmoid()
+    correct = (preds>0.5) == yb
+    return correct.float().mean()
+```
+验证下,
+```
+batch_accuracy(linear1(batch), train_y[:4])
+```
+>tensor(0.7500)
+
+把所有的批搞在一起,看下:
+```
+def validate_epoch(model):
+    accs = [batch_accuracy(model(xb), yb) for xb,yb in valid_dl]
+    return round(torch.stack(accs).mean().item(), 4)
+    
+validate_epoch(linear1)
+```
+>0.465
+
+试着训练一个周期,看看准确度是否有提高：
+```
+lr = 1.
+params = weights,bias
+train_epoch(linear1, lr, params)
+validate_epoch(linear1)
+```
+>0.7092  
+再多试一些：
+```
+for i in range(20):
+    train_epoch(linear1, lr, params)
+    print(validate_epoch(linear1), end=' ')
+```
+>0.7895 0.893 0.9331 0.9467 0.9565 0.9589 0.9604 0.9663 0.9687 0.9702 0.9697 0.9716 0.9721 0.9726 0.9736 0.9741 0.9746 0.9746 0.9746 0.9751
+
+准确度越来越高了下面需要创建一个对象来处理SGD的步骤. 这个在PyTorch中被称为 _optimizer_
