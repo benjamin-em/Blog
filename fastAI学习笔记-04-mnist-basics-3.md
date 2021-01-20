@@ -77,13 +77,12 @@ def linear1(xb): return xb@weights + bias
 preds = linear1(train_x)
 preds
 ```
->这里会打印：
-tensor([[ 25.2817],
-        [ 22.5130],
-        [ 23.5370],
-        ...,
-        [-20.4941],
-        [-22.4730],
+>tensor([[ 25.2817],  
+        [ 22.5130],  
+        [ 23.5370],  
+        ...,  
+        [-20.4941],  
+        [-22.4730],  
         [-18.8594]], grad_fn=<AddBackward0>)
 
 可以看出第一元素的计算结果和前面的计算一样.
@@ -91,23 +90,23 @@ tensor([[ 25.2817],
 现在检查下准确性。由于我们已经用train_y标记了一张图片是3还是7,所以用train_y做判断
 ```
 train_y.T
-'''
-会打印：
-tensor([[1, 1, 1,  ..., 0, 0, 0]])
-在定义train_y时,前几个标记的是1，后面标记的是0, .T 是转置矩阵
-···
 ```
+>tensor([[1, 1, 1,  ..., 0, 0, 0]])
+
+在定义train_y时,前几个标记的是1，后面标记的是0, .T 是转置矩阵
+
+
 ```
 corrects = (preds>0.0).float() == train_y
 correct
 ```
->tensor([[ True],
-        [ True],
-        [ True],
-        ...,
-        [ True],
-        [False],
-        [False]])
+>tensor([[ True],  
+        [ True],  
+        [ True],  
+        ...,  
+        [ True],  
+        [False],  
+        [False]])  
         
 ```
 corrects.float().mean().itern()
@@ -166,3 +165,13 @@ mnist_loss(tensor([0.9, 0.4, 0.8]),trgts)
 
 
 ### Sigmoid
+前面提到“用一个参数prds表示介于0和1之间的值”,怎样是prds在0和1直接？Sigmoid函数可以做到这一点.
+定义如下
+```
+def sigmoid(x): return 1/(1+torch.exp(-x))
+```
+画出图形如下
+```
+plot_function(torch.sigmoid, title='Sigmoid', min=-4, max=4)
+```
+![Sigmoid](img/Sigmoid_img.jpg)
