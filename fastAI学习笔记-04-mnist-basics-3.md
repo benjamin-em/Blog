@@ -174,4 +174,50 @@ def sigmoid(x): return 1/(1+torch.exp(-x))
 ```
 plot_function(torch.sigmoid, title='Sigmoid', min=-4, max=4)
 ```
-![Sigmoid](img/Sigmoid_img.jpg)
+![Sigmoid](img/Sigmoid_img.jpg)  
+可以看到Sigmoid是一条在0到1之间光滑且单调上升的曲线,这就很容易满足SGD中寻找梯度.
+现在重新定义loss函数：
+```
+def mnist_loss(predictions, targets):
+    predictions = predictions.sigmoid()
+    return torch.where(targets==1, 1-predictions, predictions).mean()
+```
+
+我们既然有了一个总体准确性(即前面的```corrects.float().mean().itern()```或```((preds>0.0).float() == train_y).float().mean().item()```),那为什么还要定义损失函数呢？那是因为总体准确性是让人更容易判断模型好坏,而损失函数是为了机器学习.损失函数必须是具有有意义的导数的函数,不能有较大的平坦部分和较大的跳动,而且必须平滑. 这就是为什么我们要设计一个损失函数对置信度的微小变化做出响应。但这也就意味着他不能真正反映我们要实现的目标,而实际是我们实际目标和可使用梯度进行优化的功能之间的折中.损失函数会在数据集的每个项目中计算用到,然后在一个周期结束时,对所有损失值
+进行平均,然后报告这个周期的总体平均值.  
+另一方面,总体准确性指标是我们真正关心的数字.这在每个周期结束时会打印,这些值告诉我们模型的实际运行情况.**在判断模型性能时,我们更关心这个指标而不是损失值**.
+
+### SGD and Mini-Batches
+在有了合适的损失函数后,会根据梯度来更新weights,这个叫做优化步骤(_optinization step_)
+我们可以每次针对一项数据进行计算,这样一个一个迭代计算,但是这样会很慢.也可以将所有的数据放一个巨大的矩阵中进行计算(在矩阵计算可以很好利用GPU,从而快速计算),但这样内存不够.
+所以折中地,一次计算其中几项数据的平均损失.这个叫 _Mini-Batches_. 一小批中数据的个数叫做 _batch size_
+PyTorch和fastAi提供一个类,可以对数据集进行随机化,并分批.
+```
+coll = range(15)
+dl = DataLoader(coll, batch_size=5, shuffle=True)
+list(dl)
+```
+上面```shuffle=True```表示随机化
+>[tensor([ 0,  7,  4,  5, 11]),
+ tensor([ 9,  3,  8, 14,  6]),
+ tensor([12,  2,  1, 10, 13])]
+ 
+ 为了训练模型,我们不只是需要数据的集合,这个集合还需要包含独立变量和标记(input 和targets),这两个构成一个元组,这些元组的集合子PyTorch中叫做Dataset,举个非常简单的例子：
+```
+ds = L(enumerate(string.ascii_lowercase))
+ds
+```
+>(#26) [(0, 'a'),(1, 'b'),(2, 'c'),(3, 'd'),(4, 'e'),(5, 'f'),(6, 'g'),(7, 'h'),(8, 'i'),(9, 'j')...]
+
+把Dataset传给DataLoader会获得很多个批batches:
+```
+dl = DataLoader(ds, batch_size=6, shuffle=True)
+list(dl)
+```
+>[(tensor([ 6, 14, 12, 15, 24, 11]), ('g', 'o', 'm', 'p', 'y', 'l')),   
+ (tensor([ 0, 16,  2, 18, 25, 21]), ('a', 'q', 'c', 's', 'z', 'v')),  
+ (tensor([ 8,  7, 19, 23,  1,  9]), ('i', 'h', 't', 'x', 'b', 'j')),  
+ (tensor([ 4, 13, 10,  5,  3, 17]), ('e', 'n', 'k', 'f', 'd', 'r')),  
+ (tensor([22, 20]), ('w', 'u'))] 
+ 
+ ### Putting It All Together
