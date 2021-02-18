@@ -6,3 +6,26 @@
 ```
 linear_model = nn.Linear(28*28, 1)
 ```
+每个PyTorch 模块都知道可以训练哪些参数。 它们可通过```parameters```方法获得：
+```
+w,b = linear_model.parameters()
+w.shape,b.shape
+```
+>(torch.Size([1, 784]), torch.Size([1]))  
+
+我们可以使用此信息来创建优化器
+```
+class BasicOptim:
+    def __init__(self,params,lr): self.params,self.lr = list(params),lr
+
+    def step(self, *args, **kwargs):
+        for p in self.params: p.data -= p.grad.data * self.lr
+
+    def zero_grad(self, *args, **kwargs):
+        for p in self.params: p.grad = None
+```
+我们可以通过传入模型的参数来创建优化器
+```
+opt = BasicOptim(linear_model.parameters(), lr)
+```
+
