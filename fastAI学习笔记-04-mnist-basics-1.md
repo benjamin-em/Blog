@@ -8,12 +8,13 @@ path = untar_data(URLs.MNIST_SAMPLE)
 Path.BASE_PATH = path
 path.ls()
 ```
-上面会显示： (#3) [Path('labels.csv'),Path('train'),Path('valid')]
+> (#3) [Path('labels.csv'),Path('train'),Path('valid')]
 
 ```
 (path/'train()').ls()
-#上面会显示： (#2) [Path('train/3'),Path('train/7')]
-
+```
+>上面会显示： (#2) [Path('train/3'),Path('train/7')]
+```
 threes = (path/'train'/'3').ls().sorted()
 sevens = (path/'train'/'7').ls().sorted()
 threes
@@ -98,8 +99,10 @@ Let's create a tensor containing all of our 3s stacked together. We already know
 seven_tensors = [tensor(Image.open(o)) for o in sevens]
 three_tensors = [tensor(Image.open(o)) for o in threes]
 len(three_tensors),len(seven_tensors)
-# 这里会显示: (6131, 6265)
+ 
 ```
+>(6131, 6265)
+
 这里用到了列表生成式,这是python一个非常有用的高级语法，可以对原有的列表的元素进行批量操作,生成新列表,也可以过滤列表中的元素,例如:
 ```new_list = [f(o) for o in a_list if o>0]``` 对a_list 中大于0的元素过滤出来,然后将过滤出来的每个元素执行传入f()函数,将每个返回的结果生成一个新的列表new_list,
 相对于使用循环来说,这个语法不仅简洁,而且速度快.
@@ -153,16 +156,16 @@ tns = tensor(data)
 ```
 ```
 arr  # numpy
-#会打印：
-array([[1, 2, 3],
-       [4, 5, 6]])
 ```
+>array([[1, 2, 3],
+       [4, 5, 6]])
+
 ```
 tns  # pytorch
-#会打印：
-tensor([[1, 2, 3],
-        [4, 5, 6]])
 ```
+>tensor([[1, 2, 3],
+        [4, 5, 6]])
+
 用起来几乎一模一样
 
 ```
@@ -178,32 +181,30 @@ tns[:,1]
 tensor可以和python切片的语法结合：```[start:end]```包含```start```,不包含```end```
 ```
 tns[1, 1:3]
-#会打印
-tensor([5, 6])
 ```
+>tensor([5, 6])
+
 
 也可以和数字进行加减乘除运算:
 ```
 tns+1
-#会打印
-tensor([[2, 3, 4],
-        [5, 6, 7]])
 ```
+>tensor([[2, 3, 4],
+        [5, 6, 7]])
+
 
 tensor的类型:
 ```
 tns.type()
-#会打印
-torch.LongTensor
 ```
+>torch.LongTensor
 
 可以对类型进行自动转换：
 ```
 tns*1.5
-#会打印
-tensor([[1.5000, 3.0000, 4.5000],
-        [6.0000, 7.5000, 9.0000]])
 ```
+>tensor([[1.5000, 3.0000, 4.5000],
+        [6.0000, 7.5000, 9.0000]])
 
 ### 使用广播计算指标
 
@@ -217,25 +218,25 @@ valid_7_tens = torch.stack([tensor(Image.open(o))
                             for o in (path/'valid'/'7').ls()])
 valid_7_tens = valid_7_tens.float()/255
 valid_3_tens.shape,valid_7_tens.shape
-#这里会打印
-(torch.Size([1010, 28, 28]), torch.Size([1028, 28, 28]))
 ```
+>(torch.Size([1010, 28, 28]), torch.Size([1028, 28, 28]))
 
-在定义一个函数：
+再定义一个函数：
 ```
 def mnist_distance(a,b): return (a-b).abs().mean((-1,-2))
 mnist_distance(a_3, mean3)
-#这里会打印 tensor(0.1114)
 ```
+>这里会打印 tensor(0.1114)
+
 这里还不是很清楚```((-1,-2))```参数的含义,先往下看,
 书中试着把两个不同阶的张量传进这个函数
 ```
 valid_3_dist = mnist_distance(valid_3_tens, mean3)
 valid_3_dist, valid_3_dist.shape
-#这里打印了
-(tensor([0.1474, 0.1071, 0.1349,  ..., 0.1343, 0.1370, 0.1305]),
- torch.Size([1010]))
 ```
+>(tensor([0.1474, 0.1071, 0.1349,  ..., 0.1343, 0.1370, 0.1305]),
+ torch.Size([1010]))
+
 神奇的是,valid_3_tens是一个三阶张量,而mean3是一个二阶张量,书中说的是
 >it tries to perform a simple subtraction operation between two tensors of different ranks, will use broadcasting.
 两个不同阶数的张量之间计算会使用到"广播"的机制,这让我联想到了python的map()函数
@@ -243,8 +244,9 @@ valid_3_dist, valid_3_dist.shape
 def f(x): return x * x
 r = map(f, [1, 2, 3, 4, 5, 6, 7, 8, 9])
 list(r)
-#这里会显示[1, 4, 9, 16, 25, 36, 49, 64, 81]
 ```
+>这里会显示[1, 4, 9, 16, 25, 36, 49, 64, 81]
+
 但注意不同阶数的向量之间可以通过广播机制运算,但是同一阶不同大小的张量不能运算,例如
 
 相同阶,并且每一阶大小相同(都是3)可以运算
@@ -294,19 +296,18 @@ torch.Size([1010, 28, 28])
 def is_3(x): return mnist_distance(x,mean3) < mnist_distance(x,mean7)
 
 is_3(a_3), is_3(a_3).float()
-# 会显示
-# (tensor(True), tensor(1.))
-
+```
+> (tensor(True), tensor(1.))
+```
 is_3(valid_3_tens)
-# 会显示
-# tensor([ True,  True,  True,  ..., False,  True,  True])
-
+```
+>tensor([ True,  True,  True,  ..., False,  True,  True])
+```
 accuracy_3s =      is_3(valid_3_tens).float() .mean()
 accuracy_7s = (1 - is_3(valid_7_tens).float()).mean()
-
-accuracy_3s,accuracy_7s,(accuracy_3s+accuracy_7s)/2
-#会显示(tensor(0.9168), tensor(0.9854), tensor(0.9511))
 ```
+accuracy_3s,accuracy_7s,(accuracy_3s+accuracy_7s)/2
+>(tensor(0.9168), tensor(0.9854), tensor(0.9511))
 
 本以为这就是机器学习,然而
 >To do better, perhaps it is time to try a system that does some real learning—that is, that can automatically modify itself to improve its performance. In other words, it's time to talk about the training process, and SGD.
