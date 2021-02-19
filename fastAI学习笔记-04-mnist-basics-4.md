@@ -1,4 +1,4 @@
-## fastAI第四章学习笔记-3
+## fastAI第四章学习笔记-第四部分:Optimizer和Nonlinearity
 ### Creating an Optimizer
 
 首先我们可以用PyTorch中的nn.Linear模块(module)代替[前文](fastAI学习笔记-04-mnist-basics-3.md)中的linear1. _module_ 是一个从```nn.Module```类继承的子类的对象. 此类的对象的行为与标准Python函数相同，因为你可以使用括号来调用它们，并且它们将返回模型的激活值。  
