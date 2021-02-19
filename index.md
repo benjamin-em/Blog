@@ -12,3 +12,8 @@ You can use the [first page editor on GitHub](https://github.com/EEEmien/emien.g
 
 [fastAI学习笔记-chapter4-mnist_basics-1](fastAI学习笔记-04-mnist-basics-1.md)
 
+[fastAI学习笔记-chapter4-mnist_basics-2](fastAI学习笔记-04-mnist-basics-2.md)
+
+[fastAI学习笔记-chapter4-mnist_basics-3](fastAI学习笔记-04-mnist-basics-3.md)
+
+[fastAI学习笔记-chapter4-mnist_basics-4](fastAI学习笔记-04-mnist-basics-4.md)
