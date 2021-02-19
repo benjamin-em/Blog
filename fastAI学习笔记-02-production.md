@@ -41,7 +41,7 @@ failed = verify_images(fns)
 failed
 ```
 
-通过map方法传入unlike回调可以实现删除失败的图片
+通过map方法传入unlink回调可以实现删除失败的图片
 ```
 failed.map(Path.unlink)
 ```
@@ -156,8 +156,8 @@ learn.export()
 
 path = Path()
 path.ls(file_exts='.pkl')
-#输出 (#1) [Path('export.pkl')] 可以看到生成了pkl 文件
 ```
+>(#1) [Path('export.pkl')] 可以看到生成了pkl 文件
 
 是用模型预测本地图片文件
 ```
