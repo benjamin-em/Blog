@@ -1,4 +1,4 @@
-## fastAI第四章学习笔记-3
+## fastAI第四章学习笔记-第三部分:自己的MNIST实现
 
 #### The MNIST Loss Function
 原文
