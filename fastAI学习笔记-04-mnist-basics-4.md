@@ -118,4 +118,4 @@ b2 = init_params(1)
 ```
 plot_function(F.relu)
 ```
-![relu](image/relu_img.jpg)
+![relu](img/relu_img.jpg)
