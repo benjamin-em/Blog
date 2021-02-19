@@ -193,3 +193,4 @@ learn.fit(40, 0.1)
 ```
 plt.plot(L(learn.recorder.values).itemgot(2));
 ```
+![itemgot_img](img/itemgot_img.jpg)
