@@ -219,8 +219,9 @@ list(dl)
  (tensor([ 8,  7, 19, 23,  1,  9]), ('i', 'h', 't', 'x', 'b', 'j')),  
  (tensor([ 4, 13, 10,  5,  3, 17]), ('e', 'n', 'k', 'f', 'd', 'r')),  
  (tensor([22, 20]), ('w', 'u'))] 
- 
- ### Putting It All Together
+
+
+### Putting It All Together
 有了前面的基础,我们需要实现一个像这样的函数进行每个epoch的计算.
 ```
 for x,y in dl:
