@@ -1,5 +1,13 @@
-### Jargon Recap and Questionnaire
+## Jargon Recap and Questionnaire
 
+### 术语
+神经网络包含很多数字，但它们只有两类：
+- 激活值(Activations):: 计算出来的值(包括线性和非线性层)
+- 参数(parameters):: 那些随机初始化和优化过的数字(也就是,定义模型的那些数字)  
+它们不是抽象概念,而是你的模型中具体的数字. 成为一名优秀的深度学习实践者的一部分,是习惯了实际查看激活和参数,绘制它们并测试它们是否行为正确的想法。
+所有的激活值和参数都是由 _tensors_ 表示的。有些只是规则形状的数组,例如矩阵。 矩阵有行和列; 我们称这些为axes或dimensions。
+
+### 问题
 1. How is a grayscale image represented on a computer? How about a color image?
 1. How are the files and folders in the `MNIST_SAMPLE` dataset structured? Why?
 1. Explain how the "pixel similarity" approach to classifying digits works.
