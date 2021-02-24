@@ -117,7 +117,7 @@ corrects.float().mean().itern()
 ```
 weights[0] *= 1.0001
 preds = linear1(train_x)
-((preds>0.0).float() == train_y).float().mean().item()
+((preds>0.5).float() == train_y).float().mean().item()
 ```
 >0.4912068545818329
 
