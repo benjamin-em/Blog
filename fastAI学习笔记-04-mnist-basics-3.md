@@ -301,7 +301,7 @@ weights.grad.mean(),bias.grad
 weights.grad.zero_()
 bias.grad.zero_();
 ```
->这应该和上[一篇笔记第五步调整权重](fastAI学习笔记-04-mnist-basics-2-导数和SGD.md#第五步调整权重)中的```params.grad = None```是等效的
+>这应该和上[一篇笔记第五步调整权重](fastAI学习笔记-04-mnist-basics-2.md#第五步调整权重)中的```params.grad = None```是等效的
 >另外需要注意的是```zero_```这样以下划线结尾的方法是**原位操作**,即操作后会覆盖本身的值
 
 现在只剩下一步,根据梯度(gradient)和学习率(learning rate)对weights和bias进行更新.
