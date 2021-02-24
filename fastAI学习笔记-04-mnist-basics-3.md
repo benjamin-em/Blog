@@ -97,7 +97,7 @@ train_y.T
 
 
 ```
-corrects = (preds>0.0).float() == train_y
+corrects = (preds>0.5).float() == train_y
 correct
 ```
 >tensor([[ True],  
