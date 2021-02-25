@@ -27,34 +27,32 @@
 |Learning rate | The size of the step we take when applying SGD to update the parameters of the model.
 
 ### 问题
-1. How is a grayscale image represented on a computer? How about a color image?
+1. How is a grayscale image represented on a computer? How about a color image?  
   以0-255为范围,从白(0)到黑(255)之间的数字灰度显示一幅黑白(灰度)像素.彩色图像是RGB三种颜色按一定比例混合产生一个颜色像素.
-1. How are the files and folders in the `MNIST_SAMPLE` dataset structured? Why?
+1. How are the files and folders in the `MNIST_SAMPLE` dataset structured? Why?  
   它将训练集,验证集文件按目录分开,并在下一级目录中,按数字名来存放对应的数字如"train/7"是训练集下数字7的目录.这样以目录的形式可以很方便地区分验证集,测试集.
-1. Explain how the "pixel similarity" approach to classifying digits works.
+1. Explain how the "pixel similarity" approach to classifying digits works.  
   将验证集中的数字图像堆叠并将堆叠在同一位置的像素取平均值，得到“理想”的数字图像,将待检测的数字图像与“理想”图像比较检测其差距大小.
 1. What is a list comprehension? Create one now that selects odd numbers from a list and doubles them.  
   列表推导式, ```[x*2 for x in range(1,11) if x%2 != 0]```
-1. What is a "rank-3 tensor"?
+1. What is a "rank-3 tensor"?  
   rank-3 tensor 是一系列rank-2 tensor,也就一系列矩阵.
-1. What is the difference between tensor rank and shape? How do you get the rank from the shape?
+1. What is the difference between tensor rank and shape? How do you get the rank from the shape?  
   shape描述了每个轴的长度,也就是每个阶的大小; rank指shape的长度, 也就说tensor有几阶.
-1. What are RMSE and L1 norm?
+1. What are RMSE and L1 norm?  
   RMSE指root mean squared error，也就是差的平方取平均值再开放; L1 范式指对差的绝对值取平均值
-1. How can you apply a calculation on thousands of numbers at once, many thousands of times faster than a Python loop?
+1. How can you apply a calculation on thousands of numbers at once, many thousands of times faster than a Python loop?  
   利用并行计算能力,使用广播(broadcasting)进行计算.
-1. Create a 3×3 tensor or array containing the numbers from 1 to 9. Double it. Select the bottom-right four numbers.
-  ```
-  T = tensor(range(1,10)).view(-1,3)
+1. Create a 3×3 tensor or array containing the numbers from 1 to 9. Double it. Select the bottom-right four numbers.  
+  代码如下```T = tensor(range(1,10)).view(-1,3)
   T1 = T*2
-  Tbr4 = T1[:2, :2]
-  ```
-1. What is broadcasting?
+  Tbr4 = T1[:2, :2]```
+1. What is broadcasting?  
   在张量和数字间进行运算时,把数字假设为相同形状的张量,再在两个张量间进行并行计算,它不会耗费更多额外内存.
-1. Are metrics generally calculated using the training set, or the validation set? Why?
+1. Are metrics generally calculated using the training set, or the validation set? Why?  
   metrics一般是用验证集计算的,因为这样可以避免无意间过拟合,因为模型可能已经记住训练集的数据,使用训练集的话会导致预测不准.
   metrics只是作为人为判断模型好坏的量化标准. 但它可能不具有平滑,无跳变的特征,无法求导来反应微小变化,所以无法对参数进行优化,不宜作为
-1. What is SGD?
+1. What is SGD?  
   SGD(stochastic gradient descent)随机梯度递减,
 1. Why does SGD use mini-batches?
 1. What are the seven steps in SGD for machine learning?
