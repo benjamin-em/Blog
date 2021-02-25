@@ -30,6 +30,7 @@
 1. How is a grayscale image represented on a computer? How about a color image?
   以0-255为范围,从白(0)到黑(255)之间的数字灰度显示一幅黑白(灰度)像素.彩色图像是RGB三种颜色按一定比例混合产生一个颜色像素.
 1. How are the files and folders in the `MNIST_SAMPLE` dataset structured? Why?
+  它将训练集,验证集文件按目录分开,并在下一级目录中,按数字名来存放对应的数字如"train/7"是训练集下数字7的目录.这样以目录的形式可以很方便地区分验证集,测试集.
 1. Explain how the "pixel similarity" approach to classifying digits works.
 1. What is a list comprehension? Create one now that selects odd numbers from a list and doubles them.
 1. What is a "rank-3 tensor"?
