@@ -34,6 +34,7 @@
 1. Explain how the "pixel similarity" approach to classifying digits works.
   将验证集中的数字图像堆叠并将堆叠在同一位置的像素取平均值，得到“理想”的数字图像,将待检测的数字图像与“理想”图像比较检测其差距大小.
 1. What is a list comprehension? Create one now that selects odd numbers from a list and doubles them.
+  列表推导式, ```[x*2 for x in range(1,11) if x%2 != 0]```
 1. What is a "rank-3 tensor"?
 1. What is the difference between tensor rank and shape? How do you get the rank from the shape?
 1. What are RMSE and L1 norm?
