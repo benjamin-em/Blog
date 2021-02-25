@@ -32,6 +32,7 @@
 1. How are the files and folders in the `MNIST_SAMPLE` dataset structured? Why?
   它将训练集,验证集文件按目录分开,并在下一级目录中,按数字名来存放对应的数字如"train/7"是训练集下数字7的目录.这样以目录的形式可以很方便地区分验证集,测试集.
 1. Explain how the "pixel similarity" approach to classifying digits works.
+  将验证集中的数字图像堆叠并将堆叠在同一位置的像素取平均值，得到“理想”的数字图像,将待检测的数字图像与“理想”图像比较检测其差距大小.
 1. What is a list comprehension? Create one now that selects odd numbers from a list and doubles them.
 1. What is a "rank-3 tensor"?
 1. What is the difference between tensor rank and shape? How do you get the rank from the shape?
