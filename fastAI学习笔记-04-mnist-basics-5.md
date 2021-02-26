@@ -57,11 +57,21 @@
 1. Why does SGD use mini-batches?  
   Calculating it for the whole dataset would take a very long time. Calculating it for a single item would not use much information, so it would result in a very imprecise and unstable gradient. That is, you'd be going to the trouble of updating the weights, but taking into account only how that would improve the model's performance on that single item. So instead we take a compromise between the two: we calculate the average loss for a few data items at a time. Another good reason for using mini-batches rather than calculating the gradient on individual data items is that, in practice, we nearly always do our training on an accelerator such as a GPU. These accelerators only perform well if they have lots of work to do at a time, so it's helpful if we can give them lots of data items to work on. Using mini-batches is one of the best ways to do this. However, if you give them too much data to work on at once, they run out of memory—making GPUs happy is also tricky!
 1. What are the seven steps in SGD for machine learning?
-
+   1.Initialize the parameters;
+   2.Calculate the predictions
+   3.Calculate the loss
+   4.Calculate the gradients
+   5.Step the weights - update the parameters based on the gradients we just calculated
+   6.Repeat the process from Step 2 to Step 4
+   7.Stop if we think the model is good enough
 1. How do we initialize the weights in a model?
-1. What is "loss"?
+   we initialize the parameters to random values, and tell PyTorch that we want to track their gradients, using requires_grad_:   
+1. What is "loss"?   
+   We need some function that will return a number that is small if the performance of the model is good (the standard approach is to treat a small loss as good, and a large loss as bad, although this is just a convention).
 1. Why can't we always use a high learning rate?
+   If the learning rate is too high, it may also "bounce" around, rather than actually diverging
 1. What is a "gradient"?
+
 1. Do you need to know how to calculate gradients yourself?
 1. Why can't we use accuracy as a loss function?
 1. Draw the sigmoid function. What is special about its shape?
