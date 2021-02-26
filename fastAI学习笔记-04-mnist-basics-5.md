@@ -54,8 +54,10 @@
   metrics只是作为人为判断模型好坏的量化标准. 但它可能不具有平滑,无跳变的特征,无法求导来反应微小变化,所以无法对参数进行优化,不宜作为
 1. What is SGD?  
   SGD(stochastic gradient descent)随机梯度递减,
-1. Why does SGD use mini-batches?
+1. Why does SGD use mini-batches?  
+  Calculating it for the whole dataset would take a very long time. Calculating it for a single item would not use much information, so it would result in a very imprecise and unstable gradient. That is, you'd be going to the trouble of updating the weights, but taking into account only how that would improve the model's performance on that single item. So instead we take a compromise between the two: we calculate the average loss for a few data items at a time. Another good reason for using mini-batches rather than calculating the gradient on individual data items is that, in practice, we nearly always do our training on an accelerator such as a GPU. These accelerators only perform well if they have lots of work to do at a time, so it's helpful if we can give them lots of data items to work on. Using mini-batches is one of the best ways to do this. However, if you give them too much data to work on at once, they run out of memory—making GPUs happy is also tricky!
 1. What are the seven steps in SGD for machine learning?
+
 1. How do we initialize the weights in a model?
 1. What is "loss"?
 1. Why can't we always use a high learning rate?
