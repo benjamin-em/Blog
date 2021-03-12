@@ -71,3 +71,56 @@ pets = DataBlock(blocks = (ImageBlock, CategoryBlock),
                           item_tfms=Resize(460),
                           batch_tfms=aug_transforms(size=224, min_scale=0.75)
 dls = pets.dataloaders(path/"images")
+```
+
+上面```DataBlock```各参数含义在[第二章学习笔记](fastAI学习笔记-02-production.md)中有记录,不同的是会多两行参数：
+```
+item_tfms=Resize(460)
+batch_tfms=aug_transforms(size=224, min_scale=0.75)
+```
+这两行实现了一直fastai的扩充策略,叫做 _presizing_(预设尺寸).
+
+### Presizing
+
+我们需要将图片对齐成相同的尺寸,这样才能整理到tensor然后传到GPU. 根据性能要求,我们应该尽可能用较少的变换实现扩充,并将图像变换为统一大小.这里有个难题,如果缩小图片来扩充的大小,各种常见的扩充会引入空白区域,降低数据质量,或同时出现这两种情况.例如将图片选择45度，会用空白填充新的边界的角区域,这不会对模型产生任何影响.为了规避这些问题,presizing时会采取这两步策略：
+1. 将图片重设为相对更大的尺寸,明显大于目标训练尺寸.
+2. 将所有常见的增强操作（包括调整为最终目标大小）组合为一个，并在处理结束时仅在GPU上执行一次组合操作，而不是单独执行该操作并多次插值。
+
+调整大小的第一步是创建足够大的图像,使它们具有余量,允许在内部区域进行进一步增强变换,而不是创建空白区域.这个转换会选择图像长度或宽度中较长者为边长,并随机裁剪成一个正方形.  
+第二步，将GPU用于所有数据扩充，并且所有可能破坏性的操作都一起完成，最后进行一次插值  
+![bear_sample](https://github.com/fastai/fastbook/blob/master/images/att_00060.png?raw=1)  
+图中两步：
+1. 按长度或宽度裁剪：```item_tfms```实现的就是这一步,这是在将图片copy到GPU之前执行的,只是为了保证所有图片是一样的大小.训练集中,是随机裁剪的,但在验证集中,裁剪选择的总是正中心的方形.
+2. 随机裁剪并扩充,```batch_tfms```实现的这一步,从"batch"可以看出,这是在GPU上将一整批一次性处理的,也就是说,速度会很快.在验证集上，仅在此处将尺寸调整为模型所需的最终尺寸。 在训练集上，首先进行随机裁剪和任何其他扩充。
+
+下面代码，中
+右图：一张图片放大,插值,旋转然后再插值(这是所有其他深度学习库使用的方法),
+左图：放大和旋转作为一步操作,然后一次性插值(这是fastAI的实现)，
+```
+#hide_input
+#id interpolations
+#caption A comparison of fastai's data augmentation strategy (left) and the traditional approach (right).
+dblock1 = DataBlock(blocks=(ImageBlock(), CategoryBlock()),
+                   get_y=parent_label,
+                   item_tfms=Resize(460))
+# Place an image in the 'images/grizzly.jpg' subfolder where this notebook is located before running this
+dls1 = dblock1.dataloaders([(Path.cwd()/'images'/'grizzly.jpg')]*100, bs=8)
+dls1.train.get_idxs = lambda: Inf.ones
+x,y = dls1.valid.one_batch()
+_,axs = subplots(1, 2)
+
+x1 = TensorImage(x.clone())
+x1 = x1.affine_coord(sz=224)
+x1 = x1.rotate(draw=30, p=1.)
+x1 = x1.zoom(draw=1.2, p=1.)
+x1 = x1.warp(draw_x=-0.2, draw_y=0.2, p=1.)
+
+tfms = setup_aug_tfms([Rotate(draw=30, p=1, size=224), Zoom(draw=1.2, p=1., size=224),
+                       Warp(draw_x=-0.2, draw_y=0.2, p=1., size=224)])
+x = Pipeline(tfms)(x)
+#x.affine_coord(coord_tfm=coord_tfm, sz=size, mode=mode, pad_mode=pad_mode)
+TensorImage(x[0]).show(ctx=axs[0])
+TensorImage(x1[0]).show(ctx=axs[1]);
+```
+![diff_bear](img/diff_bear_img.jpg)  
+您会看到右侧的图像清晰度较差，并且在左下角具有反射填充伪影； 同样，左上方的草完全消失了。 我们发现，在实践中，使用预先确定大小可以显着提高模型的准确性，并且通常还会加快速度。
