@@ -56,3 +56,18 @@ fname
 ```
 >Path('images/boxer_41.jpg')
 
+我们会需要从文件名提取品种名,这个可以用正则表达式(regex),关于正则表达式的学习也是一个很大的话题,这里放一个[python3.9.2的正则表达式官方文档](https://docs.python.org/zh-cn/3.9/library/re.html)和一篇[廖雪峰的简单教材](https://www.liaoxuefeng.com/wiki/1016959663602400/1017639890281664)
+```
+re.findall(r'(.+)_\d+.jpg$', fname.name)
+```
+>['great_pyrenees']
+>
+这里```findall```是python的re标准库中查找一个字符串的方法.这里查找的是下划线,点,"jpg"之前所有的字符.正则表达式在fastai中可以用来标记数据-这就是```RegexLabeller```类
+```
+pets = DataBlock(blocks = (ImageBlock, CategoryBlock),
+                          get_items=get_image_files,
+                          splitter=RandomSplitter(seed=42),
+                          get_y=using_attr(RegexLabeller(r'(.+)_\d+.jpg$'), 'name'),
+                          item_tfms=Resize(460),
+                          batch_tfms=aug_transforms(size=224, min_scale=0.75)
+dls = pets.dataloaders(path/"images")
