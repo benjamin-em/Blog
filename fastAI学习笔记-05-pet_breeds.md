@@ -354,3 +354,5 @@ softmax有点类似于sigmoid 函数：
 plot_function(torch.sigmoid, min=-4,max=4)
 ```
 > ![sigmod](img/Sigmoid_img.jpg)
+
+我们可以将该函数应用于来自神经网络的单个激活列，并返回一列介于0和1之间的数字，因此对于我们的最后一层来说，这是一个非常有用的激活函数。
