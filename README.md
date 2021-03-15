@@ -1,6 +1,4 @@
-# Blog
-
-Practical Deep Learning for Coders 学习笔记  
+# Blog - Practical Deep Learning for Coders 学习笔记  
 
 ### Jupyter notebook 地址(Google Colab)
 https://course.fast.ai/start_colab
