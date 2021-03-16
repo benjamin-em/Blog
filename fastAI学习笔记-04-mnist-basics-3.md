@@ -287,7 +287,8 @@ def calc_grad(xb, yb, model):
 calc_grad(batch, train_y[:4], linear1)
 weights.grad.mean(),bias.grad
 ```
->(tensor(-0.0005), tensor([-0.0034]))
+>(tensor(-0.0005), tensor([-0.0034]))  
+
 如果上面代码执行两次：
 ```
 calc_grad(batch, train_y[:4], linear1)
@@ -297,7 +298,7 @@ weights.grad.mean(),bias.grad
 
 看到计算的梯度值不一样了。这是因为```loss.backward```这个操作会把```loss```的梯度值累加到当前存储的任何梯度值中.
 >这里应该这样理解:在第一次执行calc_grad()时,调用了loss.backward(),它计算了一次梯度,并存在weights.grad和bais.grad中,在第二次计算时,会把新的结果累加到上一次的weights.grad和bias.grad中.  
->
+
 所以在下一次backward时,应该先把梯度置零:
 ```
 weights.grad.zero_()
