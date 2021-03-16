@@ -327,6 +327,7 @@ def train_epoch(model, lr, params):
         [ True],  
         [ True],  
         [False]])  
+
 用这个函数计算验证集预测的准确度.(注意这个准确度也就是上文提到的**总体准确性metrics**)
 ```        
 def batch_accuracy(xb, yb):
@@ -358,6 +359,7 @@ train_epoch(linear1, lr, params)
 validate_epoch(linear1)
 ```
 >0.7092  
+
 再多试一些：
 ```
 for i in range(20):
