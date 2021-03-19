@@ -575,11 +575,11 @@ interp.most_confused(min_val=5)
  
  同样,我们也可以通过谷歌来看宠物是哪个品种. 接下来优化我们的模型.
  
- ### Improving Our Model
+### Improving Our Model
  
  先看一点迁移学习(transfer learning)的知识,以及如何在不破坏与训练权重的情况下,微调预训练好的模型到最好.训练模型首先要做的是设置学习率(learning rate).Fastai提供了一个工具.
  
- #### The Learning Rate Finder
+#### The Learning Rate Finder
  
  设置合适的学习率是训练模型最重要的工作之一. 学习率设置太小可能需要花费太多的训练周期.这不仅良妃时间,也增加了过拟合的风险,因为每次完整传入一次数据,模型就有更多的机会记住数据.  
  当然把学习率设很大也不行：
