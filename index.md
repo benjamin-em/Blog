@@ -17,3 +17,5 @@ You can use the [first page editor on GitHub](https://github.com/EEEmien/emien.g
 [fastAI学习笔记-chapter4-mnist_basics-3](fastAI学习笔记-04-mnist-basics-3.md)
 
 [fastAI学习笔记-chapter4-mnist_basics-4](fastAI学习笔记-04-mnist-basics-4.md)
+
+[fastAI学习笔记-chapter5-pet_breeds](fastAI学习笔记-05-pet_breeds.md)
