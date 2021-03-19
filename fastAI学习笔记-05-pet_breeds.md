@@ -407,14 +407,16 @@ a = tensor([[1,2, 3],
 a.sum(dim=0, keepdim=True)
 ```
 
->tensor([[5, 7, 9]])
+>tensor([[5, 7, 9]])  
+
 这里```dim=0```也就是这个a[][]的序号为0的(首个)下标压缩求和成为一个值,行数压缩为1行，列数不变.
 
 ```
 a.sum(dim=1, keepdim=True)
 ```
->tensor([[ 6],  
-        [15]])
+>tensor([[ 6],    
+        [15]])  
+
 这里```dim=1```表示序号为1(第二个)压缩成为一个值 - 列数压缩为1列,行数不变.
 这里也有个很详细的解释：
 https://blog.csdn.net/weixin_45281949/article/details/103282148
