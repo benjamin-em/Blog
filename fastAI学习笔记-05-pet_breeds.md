@@ -125,7 +125,7 @@ TensorImage(x1[0]).show(ctx=axs[1]);
 ![diff_bear](img/diff_bear_img.jpg)  
 您会看到右侧的图像清晰度较差，并且在左下角具有反射填充伪影； 同样，左上方的草完全消失了。 我们发现，在实践中，使用预先确定大小可以显着提高模型的准确性，并且通常还会加快速度。
 
-### Checking and Debugging a DataBlock
+#### Checking and Debugging a DataBlock
 
 在训练前，应该检查下数据.检查数据可以用```show_batch```方法.
 ```
@@ -346,7 +346,7 @@ len(preds[0]),preds[0].sum()
 
 为了将模型的激活值,转换为这样的预测值,我们用到了叫做 _softmax_ 的激活函数.
 
-### Softmax
+#### Softmax
 
 在分类模型中,我们在最后一层用到了softmax 激活函数,确保所有激活值介于0到1之间,并且总和为1.  
 softmax有点类似于sigmoid 函数：
@@ -438,7 +438,7 @@ sm_acts
 
 softmax是交叉熵(cross-entropy)损失的第一部分,第二部分是log likelihood.
 
-### Log Likelihood
+#### Log Likelihood
 
 名词翻译
 >log：对数 
@@ -501,7 +501,7 @@ F.nll_loss(sm_acts, targ, reduction='none')
 尽管叫这个名字,这个Pytorch函数实际没有取对数.后面会说明原因,不过先看看取对数有什么用.
 
 
-### Taking the Log
+#### Taking the Log
 
 前面的损失函数有个缺点：我们用到概率,概率不能小于0或大于1.因此模型可能不太关心预测的是0.99还是0.999.实际差距确实很小,但是另外一个角度,0.999比0.99多10倍的可能性.因此我们想用负无穷到0的范围,而不是0到1.有一个数学函数就是对数.(```torch.log```), 曲线如下:
 ```
@@ -539,5 +539,55 @@ F.cross_entropy(acts, targ)
 
 两种方式都可以,不过多数人倾向于第一章,使用类的方式,PyTorch的官方文档的例子也是用这种.
 默认地,PyTorch损失函数会对所项目的损失值取平均值.我们可以使用```reduction='none' ```禁用这个功能.
-```nn.CrossEntropyLoss(reduction='none')(acts, targ)
+```
+nn.CrossEntropyLoss(reduction='none')(acts, targ)
+```
 >tensor([0.5067, 0.6973, 2.0160, 5.6958, 0.9062, 1.0048])
+
+仅通过损失函数,还不能直观判断模型训练实际好坏.这就需要一些方法来说明(interpret)模型的预测.
+
+### Model Interpretation
+
+损失函数是让计算机区分并优化参数的,对人来说不直观,这就需要度量指标(metrics).它不是用于优化,而是帮助人们了解训练的效果怎么样.
+在[第二章](02-production.html)用到过混淆矩阵(confusion matrix),看模型哪里好哪里不好.
+```
+#width 600
+interp = ClassificationInterpretation.from_learner(learn)
+interp.plot_confusion_matrix(figsize=(12,12), dpi=60)
+```
+![confusion_matrix2](img/confusion_matrix2.jpg)
+
+这个图看着太费劲了.37个宠物品种,这就意味着37x37这么巨大一个矩阵. 我们可以用你另外一个方法```most_confused```,顾名思义,这个方法只显示预测偏离错误最大的几个.(这里指定最少5个)：
+```
+interp.most_confused(min_val=5)
+```
+>[('american_pit_bull_terrier', 'staffordshire_bull_terrier', 10),  
+ ('Ragdoll', 'Birman', 8),  
+ ('Siamese', 'Birman', 6),  
+ ('Bengal', 'Egyptian_Mau', 5),  
+ ('american_pit_bull_terrier', 'american_bulldog', 5)]  
+ 
+ 同样,我们也可以通过谷歌来看宠物是哪个品种. 接下来优化我们的模型.
+ 
+ ### Improving Our Model
+ 
+ 先看一点迁移学习(transfer learning)的知识,以及如何在不破坏与训练权重的情况下,微调预训练好的模型到最好.训练模型首先要做的是设置学习率(learning rate).Fastai提供了一个工具.
+ 
+ #### The Learning Rate Finder
+ 
+ 设置合适的学习率是训练模型最重要的工作之一. 学习率设置太小可能需要花费太多的训练周期.这不仅良妃时间,也增加了过拟合的风险,因为每次完整传入一次数据,模型就有更多的机会记住数据.  
+ 当然把学习率设很大也不行：
+```
+learn = cnn_learner(dls, resnet34, metrics=error_rate)
+learn.fine_tune(1, base_lr=0.1)
+```
+epoch|	train_loss|	valid_loss|	error_rate|	time|
+--|--|--|--|--|
+0|	2.778816|	5.150732|	0.504060|	00:20|
+
+epoch|	train_loss|	valid_loss|	error_rate|	time|
+--|--|--|--|--|
+0|	4.354680|	3.003533|	0.834235|	00:24|
+
+步子迈得太大了,直接越过了最小损失. 重复多次只会离得原来越远.2015年一个研究人员Leslie Smith提出了一个天才的办法,叫 _learning rate finder_ .
+首先给出一个很小的学习率,小到不会认为会越过最小损失, 先用在一个小批量上,找出之后的损失值, 然后按一定的比例增加这个学习率,比如每次翻一倍.然后训练另一个小批量,跟踪这些损失值,然后再将学习率增加,直到发现损失值开始变差,这时我们发现就是走的太远了.选取一比这一点的值小一点的学习率,
