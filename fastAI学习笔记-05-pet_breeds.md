@@ -581,6 +581,7 @@ interp.most_confused(min_val=5)
 learn = cnn_learner(dls, resnet34, metrics=error_rate)
 learn.fine_tune(1, base_lr=0.1)
 ```
+
 epoch|	train_loss|	valid_loss|	error_rate|	time|
 --|--|--|--|--|
 0|	2.778816|	5.150732|	0.504060|	00:20|
@@ -610,6 +611,7 @@ print(f"Minimum/10: {lr_min:.2e}, steepest point: {lr_steep:.2e}")
 learn = cnn_learner(dls, resnet34, metrics=error_rate)
 learn.fine_tune(2, base_lr=3e-3)
 ```
+
 epoch|	train_loss|	valid_loss|	error_rate|	time|
 --|--|--|--|--|
 0|	1.328591|	0.344678|	0.114344|	00:20|
