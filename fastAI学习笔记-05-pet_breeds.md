@@ -300,6 +300,7 @@ torch.Size([3, 375, 500])
 learn = cnn_learner(dls, resnet34, mertrics=error_rate)
 learn.fine_tune(2)
 ```
+
 epoch|	train_loss|	valid_loss|	error_rate|	time
 --|--|--|--|--
 0|	1.551305|	0.322132|	0.106225|	00:19
