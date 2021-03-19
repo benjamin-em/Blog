@@ -76,6 +76,7 @@ learn = Learner(dls, nn.Linear(28*28,1), opt_func=SGD,
 ```
 learn.fit(10, lr=lr)
 ```
+
 |epoch|	train_loss|	valid_loss|	batch_accuracy|	time|
 |----|----|----|----|----|
 |0|	0.636709|	0.503144|	0.495584|	00:00|  
@@ -147,6 +148,7 @@ learn = Learner(dls, simple_net, opt_func=SGD,
 #hide_output
 learn.fit(40, 0.1)
 ```
+
 |epoch|	train_loss|	valid_loss|	batch_accuracy|	time|
 |----|----|----|----|----|
 0|	0.333021|	0.396112|	0.512267|	00:00
@@ -221,6 +223,7 @@ learn = cnn_learner(dls, resnet18, pretrained=False,
                     loss_func=F.cross_entropy, metrics=accuracy)
 learn.fit_one_cycle(1, 0.1)
 ```
+
 epoch|	train_loss|	valid_loss|	accuracy|	time
 |----|----|----|----|----|
 0|	0.065800|	0.017196|	0.994112|	00:16
