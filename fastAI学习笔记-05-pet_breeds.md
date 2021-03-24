@@ -789,3 +789,44 @@ epoch|	train_loss|	valid_loss|	error_rate|	time|
 我们又用到```fine_tune```, 因为很方便. 我们指定```freeze_epochs```，告诉fastai,在冻结期间训练几个时期. 它将自动为大多数数据集适当地更改学习率.
 
 在个情况下,我们不会从更深层次的模型中获得明显的收获. 记住这一点很有用-更大的模型不一定适合您的特定情况！在开始扩大规模之前，请确保尝试使用小型模型.
+
+
+### Conclusion
+
+> 直接复制原文：
+
+In this chapter you learned some important practical tips, both for getting your image data ready for modeling (presizing, data block summary) and for fitting the model (learning rate finder, unfreezing, discriminative learning rates, setting the number of epochs, and using deeper architectures). Using these tools will help you to build more accurate image models, more quickly.
+
+We also discussed cross-entropy loss. This part of the book is worth spending plenty of time on. You aren't likely to need to actually implement cross-entropy loss from scratch yourself in practice, but it's really important you understand the inputs to and output from that function, because it (or a variant of it, as we'll see in the next chapter) is used in nearly every classification model. So when you want to debug a model, or put a model in production, or improve the accuracy of a model, you're going to need to be able to look at its activations and loss, and understand what's going on, and why. You can't do that properly if you don't understand your loss function.
+
+If cross-entropy loss hasn't "clicked" for you just yet, don't worry—you'll get there! First, go back to the last chapter and make sure you really understand mnist_loss. Then work gradually through the cells of the notebook for this chapter, where we step through each piece of cross-entropy loss. Make sure you understand what each calculation is doing, and why. Try creating some small tensors yourself and pass them into the functions, to see what they return.
+
+Remember: the choices made in the implementation of cross-entropy loss are not the only possible choices that could have been made. Just like when we looked at regression we could choose between mean squared error and mean absolute difference (L1). If you have other ideas for possible functions that you think might work, feel free to give them a try in this chapter's notebook! (Fair warning though: you'll probably find that the model will be slower to train, and less accurate. That's because the gradient of cross-entropy loss is proportional to the difference between the activation and the target, so SGD always gets a nicely scaled step for the weights.)
+
+### Questionnaire
+
+>直接放原文：
+
+1. Why do we first resize to a large size on the CPU, and then to a smaller size on the GPU?
+2. If you are not familiar with regular expressions, find a regular expression tutorial, and some problem sets, and complete them. Have a look on the book's website for suggestions.
+3. What are the two ways in which data is most commonly provided, for most deep learning datasets?
+4. Look up the documentation for L and try using a few of the new methods that it adds.
+5. Look up the documentation for the Python pathlib module and try using a few methods of the Path class.
+6. Give two examples of ways that image transformations can degrade the quality of the data.
+7. What method does fastai provide to view the data in a DataLoaders?
+8. What method does fastai provide to help you debug a DataBlock?
+9. Should you hold off on training a model until you have thoroughly cleaned your data?
+10. What are the two pieces that are combined into cross-entropy loss in PyTorch?
+11. What are the two properties of activations that softmax ensures? Why is this important?
+12. When might you want your activations to not have these two properties?
+13. Calculate the exp and softmax columns of <> yourself (i.e., in a spreadsheet, with a calculator, or in a notebook).
+14. Why can't we use torch.where to create a loss function for datasets where our label can have more than two categories?
+15. What is the value of log(-2)? Why?
+16. What are two good rules of thumb for picking a learning rate from the learning rate finder?
+17. What two steps does the fine_tune method do?
+18. In Jupyter Notebook, how do you get the source code for a method or function?
+19. What are discriminative learning rates?
+20. How is a Python slice object interpreted when passed as a learning rate to fastai?
+21. Why is early stopping a poor choice when using 1cycle training?
+22. What is the difference between resnet50 and resnet101?
+23. What does to_fp16 do?
