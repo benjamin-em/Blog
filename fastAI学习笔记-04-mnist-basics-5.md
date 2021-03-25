@@ -91,3 +91,6 @@
 1. What is an "activation function"?
 1. What's the difference between `F.relu` and `nn.ReLU`?
 1. The universal approximation theorem shows that any function can be approximated as closely as needed using just one nonlinearity. So why do we normally use more?
+
+
+[Back to contents page](index.md)
