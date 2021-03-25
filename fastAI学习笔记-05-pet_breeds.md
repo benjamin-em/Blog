@@ -830,3 +830,5 @@ Remember: the choices made in the implementation of cross-entropy loss are not t
 21. Why is early stopping a poor choice when using 1cycle training?
 22. What is the difference between resnet50 and resnet101?
 23. What does to_fp16 do?
+
+[Back to contents page](index.md)
