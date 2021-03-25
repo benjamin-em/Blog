@@ -181,3 +181,5 @@ learn_inf.predict(img)
  tensor(0),
  tensor([8.3877e-01, 5.6876e-04, 1.5991e-01, 2.5078e-07, 7.5152e-04]))
 ```
+
+[Back to contents page](index.md)
