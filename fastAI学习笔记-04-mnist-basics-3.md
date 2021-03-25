@@ -3,6 +3,7 @@
 #### The MNIST Loss Function
 原文
 >We already have our independent variables x—these are the images themselves. We'll concatenate them all into a single tensor, and also change them from a list of matrices (a rank-3 tensor) to a list of vectors (a rank-2 tensor). We can do this using view, which is a PyTorch method that changes the shape of a tensor without changing its contents. -1 is a special parameter to view that means "make this axis as big as necessary to fit all the data":
+
 ```
 train_x = torch.cat([stacked_threes, stacked_sevens]).view(-1, 28*28)
 ```
@@ -254,6 +255,7 @@ batch = train_x[:4]
 batch.shape
 ```
 >torch.Size([4, 784])
+
 ```
 preds = linear1(batch)
 preds
@@ -262,6 +264,7 @@ preds
         [ 9.1995],  
         [ 5.2920],  
         [-6.3847]], grad_fn=<AddBackward0>)  
+
 ```
 loss = mnist_loss(preds, train_y[:4])
 loss
