@@ -303,11 +303,12 @@ is_3(a_3), is_3(a_3).float()
 is_3(valid_3_tens)
 ```
 >tensor([ True,  True,  True,  ..., False,  True,  True])
+
 ```
 accuracy_3s =      is_3(valid_3_tens).float() .mean()
 accuracy_7s = (1 - is_3(valid_7_tens).float()).mean()
-```
 accuracy_3s,accuracy_7s,(accuracy_3s+accuracy_7s)/2
+```
 >(tensor(0.9168), tensor(0.9854), tensor(0.9511))
 
 本以为这就是机器学习,然而
