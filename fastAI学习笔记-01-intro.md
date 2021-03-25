@@ -47,3 +47,5 @@ learn = cnn_learner(dls, resnet18, metrics=error_rate)
 ```
 learn.fine_tune(4)
 ```
+
+[Back to contents page](index.md)
