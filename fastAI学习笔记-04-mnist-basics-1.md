@@ -298,6 +298,7 @@ def is_3(x): return mnist_distance(x,mean3) < mnist_distance(x,mean7)
 is_3(a_3), is_3(a_3).float()
 ```
 > (tensor(True), tensor(1.))
+ 
 ```
 is_3(valid_3_tens)
 ```
