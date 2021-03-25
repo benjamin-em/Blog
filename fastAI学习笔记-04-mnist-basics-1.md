@@ -313,3 +313,6 @@ accuracy_3s,accuracy_7s,(accuracy_3s+accuracy_7s)/2
 
 本以为这就是机器学习,然而
 >To do better, perhaps it is time to try a system that does some real learning—that is, that can automatically modify itself to improve its performance. In other words, it's time to talk about the training process, and SGD.
+
+
+[Back to contents page](index.md)
