@@ -13,7 +13,8 @@ path.ls()
 ```
 (path/'train()').ls()
 ```
->上面会显示： (#2) [Path('train/3'),Path('train/7')]
+>(#2) [Path('train/3'),Path('train/7')]
+
 ```
 threes = (path/'train'/'3').ls().sorted()
 sevens = (path/'train'/'7').ls().sorted()
