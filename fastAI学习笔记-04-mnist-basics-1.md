@@ -24,7 +24,7 @@ threes
 ```
 im3_path = threes[1]
 im3 = Image.open(im3_path)
-img3
+im3
 ```
 执行到上面会显示一个"3"的图片，Image类来自Python Imaging Library(PIL)库,它在python中广泛用来打开,查看,操作图片
 因为jupyter移植PIL图像，所有在执行img时会直接自动显示图片到网页上.
