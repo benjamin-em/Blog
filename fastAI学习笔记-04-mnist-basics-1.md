@@ -11,7 +11,7 @@ path.ls()
 > (#3) [Path('labels.csv'),Path('train'),Path('valid')]
 
 ```
-(path/'train()').ls()
+(path/'train').ls()
 ```
 >(#2) [Path('train/3'),Path('train/7')]
 
