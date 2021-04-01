@@ -3,6 +3,17 @@
 也有[论坛](https://forums.fast.ai/c/part1-v4/46)
 目前学到视频第三节，回过头来做[第二章](https://colab.research.google.com/github/fastai/fastbook/blob/master/02_production.ipynb)的笔记,算是复习,有些地方会复制书中英文原话。
 
+首先安装和导入一些必要的模块
+```
+!pip install -Uqq fastbook
+import fastbook
+fastbook.setup_book()
+
+from fastbook import *
+from fastai.vision.widgets import *
+```
+
+
 ### 使用duckduckGo搜索图片
 
 书中介绍了使用bing搜索图片，作为数据集来源。但是必应注册API过程太麻烦，尤其是需要信用卡,于是使用书中介绍的[第二种方法](https://course.fast.ai/images),
