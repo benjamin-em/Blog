@@ -1,4 +1,4 @@
-## fastAI第四章学习笔记-第一部分:一些语法
+## fastAI第四章学习笔记
 
 ### python 相关一些语法
 
@@ -315,7 +315,6 @@ accuracy_3s,accuracy_7s,(accuracy_3s+accuracy_7s)/2
 本以为这就是机器学习,然而
 >To do better, perhaps it is time to try a system that does some real learning—that is, that can automatically modify itself to improve its performance. In other words, it's time to talk about the training process, and SGD.
 
-## fastAI第四章学习笔记-第二部分:导数和梯度
 
 ### PyTorch 计算导数
 
@@ -488,7 +487,6 @@ plt.tight_layout()
 为了找到调整参数的方向,我们使用了梯度。梯度是一组向量如```tensor([-53195.8594,  -3419.7146,   -253.8908])```,它反应的是函数变化的方向。光有方向还不够,还得知道一次移动多大的距离,所以还要乘以一个学习率learn rate(lr)。然后按照这几个步进行迭代,知道到达最低点,我们就可以停止了。   
 上面除了损失函数,我们看到的所有内容都可以直接用在MNIST数据上。
 
-## fastAI第四章学习笔记-第三部分:自己的MNIST实现
 
 #### The MNIST Loss Function
 原文
@@ -863,7 +861,6 @@ for i in range(20):
 
 准确度越来越高了下面需要创建一个对象来处理SGD的步骤. 这个在PyTorch中被称为 _optimizer_
 
-## fastAI第四章学习笔记-第四部分:Optimizer和Nonlinearity
 ### Creating an Optimizer
 
 首先我们可以用PyTorch中的nn.Linear模块(module)代替[前文](fastAI学习笔记-04-mnist-basics-3.md)中的linear1. _module_ 是一个从```nn.Module```类继承的子类的对象. 此类的对象的行为与标准Python函数相同，因为你可以使用括号来调用它们，并且它们将返回模型的激活值。  
