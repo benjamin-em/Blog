@@ -1,5 +1,17 @@
 ## fastAI第四章学习笔记
 
+安装和导入一些必要的模块
+```
+!pip install -Uqq fastbook
+import fastbook
+fastbook.setup_book()
+
+from fastai.vision.all import *
+from fastbook import *
+
+matplotlib.rc('image', cmap='Greys')
+```
+
 ### python 相关一些语法
 
 从下载MNIST的sample并查看内容：
