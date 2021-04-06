@@ -1,6 +1,7 @@
 ## FastAI 第5章学习笔记
 
->和之前一样, 先安装和加载必要的库
+>和之前一样, 先安装和加载必要的库  
+
 ```
 !pip install -Uqq fastbook
 import fastbook
