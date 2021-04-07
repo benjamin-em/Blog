@@ -79,7 +79,7 @@ pets = DataBlock(blocks = (ImageBlock, CategoryBlock),
                           splitter=RandomSplitter(seed=42),
                           get_y=using_attr(RegexLabeller(r'(.+)_\d+.jpg$'), 'name'),
                           item_tfms=Resize(460),
-                          batch_tfms=aug_transforms(size=224, min_scale=0.75)
+                          batch_tfms=aug_transforms(size=224, min_scale=0.75))
 dls = pets.dataloaders(path/"images")
 ```
 
