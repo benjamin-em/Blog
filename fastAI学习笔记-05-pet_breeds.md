@@ -409,7 +409,8 @@ acts.sigmoid()
 def softmax(x): return exp(x) / exp(x).sum(dim=1, keepdim=True)
 ```
 >这里需要解释两个地方,第一个是exp(x), 表示```e**x```也就是自然常数e的x次方
->第二是个```sum(dim=1, keepdim=True)```书中没有介绍,``dim=1```表示“横向压缩求和”,dim表示"维度".
+>第二是个```sum(dim=1, keepdim=True)```书中没有介绍,```dim=1```表示“横向压缩求和”,dim表示"维度",```keepdim=True```表示压缩后
+>维度数保持不变.
 >
 ```
 a = tensor([[1,2, 3],
@@ -553,7 +554,7 @@ F.cross_entropy(acts, targ)
 ```
 >tensor(1.8045)
 
-两种方式都可以,不过多数人倾向于第一章,使用类的方式,PyTorch的官方文档的例子也是用这种.
+两种方式都可以,不过多数人倾向于第一种,使用类的方式,PyTorch的官方文档的例子也是用这种.
 默认地,PyTorch损失函数会对所项目的损失值取平均值.我们可以使用```reduction='none' ```禁用这个功能.
 ```
 nn.CrossEntropyLoss(reduction='none')(acts, targ)
@@ -573,7 +574,7 @@ interp.plot_confusion_matrix(figsize=(12,12), dpi=60)
 ```
 ![confusion_matrix2](img/confusion_matrix2.jpg)
 
-这个图看着太费劲了.37个宠物品种,这就意味着37x37这么巨大一个矩阵. 我们可以用你另外一个方法```most_confused```,顾名思义,这个方法只显示预测偏离错误最大的几个.(这里指定最少5个)：
+这个图看着太费劲了.37个宠物品种,这就意味着37x37这么巨大一个矩阵. 我们可以用你另外一个方法```most_confused```,顾名思义,这个方法只显示预测偏离错误最大的几个.(min_val=5指最小为5的所有)：
 ```
 interp.most_confused(min_val=5)
 ```
