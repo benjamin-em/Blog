@@ -307,7 +307,7 @@ torch.Size([3, 375, 500])
 我们可以确切看到如何收集数据(get_items)并将其拆分(spitter),如何从文件名转到样本(元组(image, category)),然后应用了那些转换项(item_tfms, batch_tfms)啊，为何在收集样本到一个batch时会失败(因为图片形状不同)  
 一旦觉得数据看起来没问题,建议用这些数据去训练一个简单的模型.很多人会推迟训练一个实际模型太久了,这样他们会很难看到一个基线结果的样子.很可能你的问题压根就不需要很多很复杂的特定领域的工程.或者也许看起来完全没有训练到模型.有很多东西,我们需要越早知道越好. 作为作为初始测试,我们会用一个常用的简单模型：
 ```
-learn = cnn_learner(dls, resnet34, mertrics=error_rate)
+learn = cnn_learner(dls, resnet34, metrics=error_rate)
 learn.fine_tune(2)
 ```
 
