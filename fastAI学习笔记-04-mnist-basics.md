@@ -1251,7 +1251,9 @@ epoch|	train_loss|	valid_loss|	accuracy|	time
    激活函数是线性层之间的非线性函数,多个线性层直接组合等效为一个线性层,失去了多层的意义达不到不到提高模型效果的要求, 加入非线性层为了消除这种特性. In fact, it can be mathematically proven that such a model can solve any computable problem to an arbitrarily high accuracy, if the model is large enough with the correct weights. This is known as the universal approximation theorem.
    
 1. What's the difference between `F.relu` and `nn.ReLU`?
+   F.relu is a Python function for the relu activation function. On the other hand, nn.ReLU is a PyTorch module. This means that it is a Python class that can be called as a function in the same way as F.relu.
+   
 1. The universal approximation theorem shows that any function can be approximated as closely as needed using just one nonlinearity. So why do we normally use more?
-
+    There are practical performance benefits to using more than one nonlinearity. We can use a deeper model with less number of parameters, better performance, faster training, and less compute/memory requirements.
 
 [Back to contents page](index.md)
