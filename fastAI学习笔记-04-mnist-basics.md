@@ -1187,13 +1187,26 @@ epoch|	train_loss|	valid_loss|	accuracy|	time
 ![sigmoid](img/Sigmoid_img.jpg)  
 它的函数值总介于0和1之间,x越小,y越趋近于0；x越大,y越趋近于1. 并且图像关于(0,0.5)呈中心对称.
 1. What is the difference between a loss function and a metric?
+   The key difference is that the metric is to drive human understanding and the loss is to drive automated learning. To drive automated learning, the loss must be a function that has a meaningful derivative. It can't have big flat sections and large jumps, but instead must be reasonably smooth. 
 1. What is the function to calculate new weights using a learning rate?
+    Optimizer step
 1. What does the `DataLoader` class do?
+    A DataLoader can take any Python collection and turn it into an iterator over many batches, like so:  
+    ```
+    coll = range(15)
+    dl = DataLoader(coll, batch_size=5, shuffle=True)
+    list(dl)
+    ```
+ 
+    >[tensor([ 3, 12,  8, 10,  2]),  
+      tensor([ 9,  4,  7, 14,  5]),  
+      tensor([ 1, 13,  0,  6, 11])]  
 1. Write pseudocode showing the basic steps taken in each epoch for SGD.
 1. Create a function that, if passed two arguments `[1,2,3,4]` and `'abcd'`, returns `[(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')]`. What is special about that output data structure?
 1. What does `view` do in PyTorch?
 1. What are the "bias" parameters in a neural network? Why do we need them?
 1. What does the `@` operator do in Python?
+   Multiply of matrixes
 1. What does the `backward` method do?
 1. Why do we have to zero the gradients?
 1. What information do we have to pass to `Learner`?
