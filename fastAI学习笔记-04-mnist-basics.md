@@ -1202,7 +1202,19 @@ epoch|	train_loss|	valid_loss|	accuracy|	time
       tensor([ 9,  4,  7, 14,  5]),  
       tensor([ 1, 13,  0,  6, 11])]  
 1. Write pseudocode showing the basic steps taken in each epoch for SGD.
+   ```
+   for x,y in dl:
+       preds = model(x)
+       loss = loss_func(pred, y)
+       loss.backward()
+       parameters -= parameters.grad * lr
+   ```
+   
 1. Create a function that, if passed two arguments `[1,2,3,4]` and `'abcd'`, returns `[(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')]`. What is special about that output data structure?
+   ```
+   def func(a,b):
+       return list(zip(a,b))
+   ```
 1. What does `view` do in PyTorch?
 1. What are the "bias" parameters in a neural network? Why do we need them?
 1. What does the `@` operator do in Python?
