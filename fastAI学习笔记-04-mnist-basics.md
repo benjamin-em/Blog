@@ -1216,15 +1216,40 @@ epoch|	train_loss|	valid_loss|	accuracy|	time
        return list(zip(a,b))
    ```
 1. What does `view` do in PyTorch?
+   It changes the shape of a Tensor without changing its contents.
 1. What are the "bias" parameters in a neural network? Why do we need them?
+   Without the bias parameters, if the input is zero, the output will always be zero. Therefore, using bias parameters adds additional flexibility to the model.
 1. What does the `@` operator do in Python?
-   Multiply of matrixes
+   Multiplication of matrixes
 1. What does the `backward` method do?
+   Calculate the gradient.
 1. Why do we have to zero the gradients?
+   Because PyTorch will stored the previous gradients, and added with current one. If the training loop function is called multiple times, without zeroing the gradients, the gradient of current loss would be added to the previously stored gradient value.
 1. What information do we have to pass to `Learner`?
+   The ```DataLoaders```, the model, the optimization function, loss function, and optionally any metrics to print.
 1. Show Python or pseudocode for the basic steps of a training loop.
+   ```
+   params = init_paramters()
+ 
+   def train_epoch(model, lr, params):
+       for xb, yb in dl:
+          calc_gradient(xb, yb, model)
+          for p in params:
+             p -= p.gradient * lr
+             p.gradient.zer_()
+   
+    
+   for i in range(20):
+      train_epoch(model, lr, params)
+   ```
+  
 1. What is "ReLU"? Draw a plot of it for values from `-2` to `+2`.
+   ReLU 是一个将负数变为0，正式保持原有值的函数.  
+   ![relu](img/relu_img.jpg)
+   
 1. What is an "activation function"?
+   激活函数是线性层之间的非线性函数,多个线性层直接组合等效为一个线性层,失去了多层的意义达不到不到提高模型效果的要求, 加入非线性层为了消除这种特性. In fact, it can be mathematically proven that such a model can solve any computable problem to an arbitrarily high accuracy, if the model is large enough with the correct weights. This is known as the universal approximation theorem.
+   
 1. What's the difference between `F.relu` and `nn.ReLU`?
 1. The universal approximation theorem shows that any function can be approximated as closely as needed using just one nonlinearity. So why do we normally use more?
 
