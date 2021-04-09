@@ -1179,12 +1179,13 @@ epoch|	train_loss|	valid_loss|	accuracy|	time
    If the learning rate is too high, it may also "bounce" around, rather than actually diverging
 1. What is a "gradient"?
    The derivative of the loss with respect to some parameter of the model. In deep learning, "gradients" usually means the value of a function's derivative at a particular argument value
-1. Do you need to know how to calculate gradients yourself?
+1. Do you need to know how to calculate gradients yourself?  
    No,```requires_grad_``` will tell Pytorch we want to calculate gradients with respect to that variable at that value. It is essentially tagging the variable, so PyTorch will remember to keep track of how to compute gradients of the other, direct calculations on it that you will ask for.
-1. Why can't we use accuracy as a loss function?
+1. Why can't we use accuracy as a loss function?  
    A very small change in the value of a weight will often not actually change the accuracy at all. This means it is not useful to use accuracy as a loss function-if we do, most of the time our gradients will actually be 0, and the model will not be able to learn from that number.
-1. Draw the sigmoid function. What is special about its shape?
-
+1. Draw the sigmoid function. What is special about its shape?  
+![sigmoid](img/Sigmoid_img.jpg)  
+它的函数值总介于0和1之间,x越小,y越趋近于0；x越大,y越趋近于1. 并且图像关于(0,0.5)呈中心对称.
 1. What is the difference between a loss function and a metric?
 1. What is the function to calculate new weights using a learning rate?
 1. What does the `DataLoader` class do?
