@@ -51,27 +51,62 @@ df.head()
 > ```
 > df.iloc[:,0]
 > ```
->0       000005.jpg
->1       000007.jpg
->2       000009.jpg
->3       000012.jpg
->4       000016.jpg
->           ...
->5006    009954.jpg
->5007    009955.jpg
->5008    009958.jpg
->5009    009959.jpg
->5010    009961.jpg
->Name: fname, Length: 5011, dtype: obj
+> >0       000005.jpg  
+> >1       000007.jpg  
+> >2       000009.jpg  
+> >3       000012.jpg  
+> >4       000016.jpg  
+> >       ...  
+> >5006    009954.jpg  
+> >5007    009955.jpg  
+> >5008    009958.jpg  
+> >5009    009959.jpg  
+> >5010    009961.jpg  
+> >Name: fname, Length: 5011, dtype: obj
 >
->```
->df.iloc[0,:]
-># Trailing :s are always optional (in numpy, pytorch, pandas, etc.),
->#   so this is equivalent:
->df.iloc[0]
->```
+> ```
+> df.iloc[0,:]
+> # Trailing :s are always optional (in numpy, pytorch, pandas, etc.),
+> #   so this is equivalent:
+> df.iloc[0]
+> ```
+> >fname       000005.jpg
+> >labels           chair
+> >is_valid          True
+> >Name: 0, dtype: object
 >
+> 新建列
+> ```
+> tmp_df = pd.DataFrame({'a':[1,2], 'b':[3,4]})
+> tmp_df
+> ```
+>
+> |      |    a |    b |
+> | -- | -- | -- |
+> |    0 |    1 |    3 |
+> |    1 |    2 |    4 |
+>
+> ```
+> tmp_df['c'] = tmp_df['a']+tmp_df['b']
+> tmp_df
+> ```
+>
+> |    a |    b |    c |      |
+> | ---: | ---: | ---: | ---- |
+> |    0 |    1 |    3 | 4    |
+> |    1 |    2 |    4 | 6    |
+> 
+>Padas 是一个非常高效灵活的库,也是对数据科学家非常重要的一个工具.  [Python for Data Analysis](http://shop.oreilly.com/product/0636920023784.do) 这本书介绍了Padas，同时也包含```matplotlib```和```numpy```的介绍.
 
+#### Constructing a DataBlock
+怎样将一个DataFrame对象转换成DataLoaders 对象?  条件允许的话,一般建议用数据块API建立一个DataLoaders对象,因为它同时具备灵活性和易用性. 下面来介绍个这样的例子.
+Pytoch和fastai有两个主要的类,用于表示和访问一个数据集或验证.
+
+Dataset
+     一个集合,返回的是单个数据项 - 从因变量和从变量构成的一个元组.
+    
+DataLoader
+    一个提供小批量流的一个迭代器,每个小批量
 
 
 [Back to contents page](index.md)
