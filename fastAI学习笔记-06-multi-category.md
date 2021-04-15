@@ -24,8 +24,55 @@ from fastbook import *
 
 #### The Data
 
-我们用PASCAL数据集作为例子.
+我们用PASCAL数据集作为例子. 下载解压数据集:
+
+```
+from fastai.vision.all import *
+path = untar_data(URLs.PASCAL_2007)
+```
+
+和之前以目录或文件名构成不一样的是,这个数据集是以CSV文件制定每个图像用什么标签.我们可以将CSV文件读到Pandas DataFrame来查看.
+
+```
+df = df.read_csv(path/'train.csv')
+df.head()
+```
+
+| fname |     labels |     is_valid |       |
+| ----: | ---------: | -----------: | ----- |
+|     0 | 000005.jpg |        chair | True  |
+|     1 | 000007.jpg |          car | True  |
+|     2 | 000009.jpg | horse person | True  |
+|     3 | 000012.jpg |          car | False |
+|     4 | 000016.jpg |      bicycle | True  |
+
+> 我们可以用```iloc```属性获取DataFrame的一列:
+>
+> ```
+> df.iloc[:,0]
+> ```
+>0       000005.jpg
+>1       000007.jpg
+>2       000009.jpg
+>3       000012.jpg
+>4       000016.jpg
+>           ...
+>5006    009954.jpg
+>5007    009955.jpg
+>5008    009958.jpg
+>5009    009959.jpg
+>5010    009961.jpg
+>Name: fname, Length: 5011, dtype: obj
+>
+>```
+>df.iloc[0,:]
+># Trailing :s are always optional (in numpy, pytorch, pandas, etc.),
+>#   so this is equivalent:
+>df.iloc[0]
+>```
+>
 
 
 
 [Back to contents page](index.md)
+
