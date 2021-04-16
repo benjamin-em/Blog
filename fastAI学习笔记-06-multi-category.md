@@ -287,6 +287,102 @@ loss
 ```
 >tensor(1.0082, device='cuda:5', grad_fn=<BinaryCrossEntropyWithLogitsBackward>)
 
+不必向fastai指定用这个损失函数, 因为它会自动选择. fastai 知道```DataLoaders```有多种类标签, 所以会默认用```nn.BCEWithLogitsLoss```. 和前面章节比起来, metric也不一样: 因为这是个多标签问题, 不能像之前一样用度量函数. 因为度量函数是比较我们的输出和目标:
+
+```
+def accuracy(inp, targ, axis=-1):
+    "Compute accuracy with 'targ' when 'pred' is bs * n_classes"
+    pred = inp.argmax(dim=axis)
+    return (pred == targ).float().mean()
+```
+
+预测的种类是有最高激活(argmax就是求这个的)的那个. 但在这里多标签问题上没用, 因为在一个图像上可以有一个以上的预测.  在给激活值取了sigmoid 后, 需要通过选取一个```threshold```(阈值)类确定哪些是0, 哪些是1. 每个高于阈值的的值认为是1, 小于阈值的认为是0:
+
+```
+def accuracy_multi(inp, targ, thresh=0.5, sigmoid=True):
+    "Compute accuracy when 'inp' and 'targ' are the same size. "
+    if sigmoid :  inp = ip.sigmoid()
+    return ((inp > thresh) == targ.bool()).float().mean()
+```
+
+如果将```accuracy_multi```函数直接作为```metric```参数传给leaner, ```thresh``` 会使用默认值0.5 . 如果要调整这个默认参数，可以使用Python的```partial```函数. 它可以将函数与指定的参数绑定.例如我们使用0.2作为阈值训练模型:
+
+```
+learn = cnn_learner(dls, resnet50, metrics=partial(accuracy_multi, thresh=0.2))
+lean.fine_tune(3, base_lr=3e=3, freeze_epochs=4)
+```
+>
+| epoch | train_loss | valid_loss | accuracy_multi | time  |
+| ----- | ---------- | ---------- | -------------- | ----- |
+| 0     | 0.942663   | 0.703737   | 0.233307       | 00:08 |
+| 1     | 0.821548   | 0.550827   | 0.295319       | 00:08 |
+| 2     | 0.604189   | 0.202585   | 0.816474       | 00:08 |
+| 3     | 0.359258   | 0.123299   | 0.944283       | 00:08 |
+
+| epoch | train_loss | valid_loss | accuracy_multi | time  |
+| ----- | ---------- | ---------- | -------------- | ----- |
+| 0     | 0.135746   | 0.123404   | 0.944442       | 00:09 |
+| 1     | 0.118443   | 0.107534   | 0.951255       | 00:09 |
+| 2     | 0.098525   | 0.104778   | 0.951554       | 00:10 |
+
+选择阈值如果太低, 会经常不能正确找出标记的对象. 我们改小然后调用```validate```看看返回的验证损失和度量值:
+
+```
+learn.metrics = partial(accuracy_multi, thresh=0.1)
+learn.validate()
+```
+> (#2) [0.10477833449840546,0.9314740300178528]
+
+如果阈值太大, 则只能宣传那些可行度非常高的对象:
+
+```
+learn.metrics = partial(accuracy_multi, thresh=0.99)
+learn.validate()
+```
+>(#2) [0.10477833449840546,0.9429482221603394]
+
+可以通过尝几个然后找到那个threshold最合适. 如果只抓取一次预测值, 这个过程会很快:
+
+```
+preds, targs = learn.get_preds()
+```
+
+然后可以直接调用度量函数. 注意, 默认```get_preds```会默认地调用输出激活函数(这个例子里用的是sigmoid), 所以我们在```accuracy_multi```中就不应该再调用了:
+
+```
+accuracy_multi(preds, targs, thresh=0.9, sigmoid=False)
+```
+>TensorImage(0.9567)
+
+利用这单, 我们可以找到最合适的阈值:
+
+```
+xs = torch.linspace(0.05, 0,95, 29)
+accs = [accuracy_multi(preds, targs, thresh=i, sigmoid=False)  for i in xs]
+plt.plot(xs, accs);
+```
+> ![best_threshold](img/best_threshold.jpg)
+
+在这个例子中, 我们用验证集选择一个超参数 - threshold, 这是验证集的目的. 有人强调,由于尝试过多的值来寻找最好的,可能造成验证集 *过拟合*  . 但是从图中看到,改变阈值的结果是一条平滑的曲线, 所以可以明确的选择一个合适的极值点. 这是一个很好的例子, 说明必须注意理论(不要尝试过多的超参数值, 否则可能会过度拟合验证集)与实践之间的差异(如果关系是平滑的,则可以这样做).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 [Back to contents page](index.md)
