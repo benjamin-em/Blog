@@ -234,7 +234,7 @@ dls.show_batch(nrow=1, ncols=3)
 
 通过```DataBlock```创建```DataLoaders```时, 如果出错, 或者想看看实际细节过程时, 可以用```summary```方法.
 
-### Binary Cross Entropy
+#### Binary Cross Entropy
 
 现在创建```Learner```. 第四章中介绍过```Learner```对象包含四部分：模型, 一个```DataLoaders```对象, 一个```Optimizer```, 和一个损失函数. ```DataLoaders```已经有了, 模型可以直接用fastai中的```resnet```模型, Optimizer就用```SGD```优化器. 现在主要看怎么保证用的是一个合适的损失函数. 用```cnn_learner```创建一个```Learner```，看看激活函数:
 
@@ -318,7 +318,7 @@ lean.fine_tune(3, base_lr=3e=3, freeze_epochs=4)
 | 1     | 0.821548   | 0.550827   | 0.295319       | 00:08 |
 | 2     | 0.604189   | 0.202585   | 0.816474       | 00:08 |
 | 3     | 0.359258   | 0.123299   | 0.944283       | 00:08 |
-
+>
 | epoch | train_loss | valid_loss | accuracy_multi | time  |
 | ----- | ---------- | ---------- | -------------- | ----- |
 | 0     | 0.135746   | 0.123404   | 0.944442       | 00:09 |
@@ -367,22 +367,229 @@ plt.plot(xs, accs);
 
 
 
+### Regression
 
+不难想到, 深度学习模型被归类到几个领域,  像计算机视觉, NLP(自然语言处理)等. 实际fastai也是这么做的,大部分原因是由于多少人习惯这样考虑, 但实际上背后还有更有趣和更深远的考虑. 模型由它的因变量从变量以及损失函数定义. 这意味着模型种类远比简单地按领域划分要广. 可能独立变量是一个图像, 从变量是文本(如从图像生成的描述说明); 可能独立变量是文本, 从变量是一张图片(如通过描述生成一张图像); 可能我们有图像, 文本以及表单数据作为独立变量, 然后尝试去预测购物...无限可能...
 
+为了能够超越固定应用程序, 可以针对新问题制定自己的新颖解决方案, 理解数据块API(也可能是中间件API)相当有用. 看看 *图像回归* 问题. 这是指从自变量为图像,因变量为一个或多个浮点数的数据集中学习. 人们常把图像回归问题作为一个完全独立的应用, 但是下面我们可以看到, 我们可以把它看做另外一种在数据块API基础上的CNN问题.
 
+现在建立一个焦点模型.  *焦点* 是指图像上一个特定的位置. 这个例子用人的图像, 找每个图像中人脸的中心位置. 实际上会预测每个图像的两个值: 脸部中心的横坐标和纵坐标.
 
+#### Assemble tht Data
 
+用 [Biwi Kinect Head Pose dataset](https://icu.ee.ethz.ch/research/datsets.html) 数据集.
 
+```
+path = untar_data(URLs.BIWI_HEAD_POSE)
 
+Path.BASE_PATH = path
 
+path.ls().sorted()
+```
+>(#50) [Path('01'),Path('01.obj'),Path('02'),Path('02.obj'),Path('03'),Path('03.obj'),Path('04'),Path('04.obj'),Path('05'),Path('05.obj')...]
 
+有24个目录 - 从01 到24(对应不同人的照片) 和每个目录对应的.obj文件. 看看其中一个目录:
+```
+(path/'01').ls().sorted()
+```
+>(#1000) [Path('01/depth.cal'),Path('01/frame_00003_pose.txt'),Path('01/frame_00003_rgb.jpg'),Path('01/frame_00004_pose.txt'),Path('01/frame_00004_rgb.jpg'),Path('01/frame_00005_pose.txt'),Path('01/frame_00005_rgb.jpg'),Path('01/frame_00006_pose.txt'),Path('01/frame_00006_rgb.jpg'),Path('01/frame_00007_pose.txt')...]
 
+在子目录里, 有不同的frame, 每个frame有一个图像文件(_rgb.jpg)和一个动作文件(_pose.txt). 可以用
+```get_image_files```很容易递归的获取所有图像文件名. 然后写个正则函数将图像文件名转成对应的动作文件名.
 
+```
+img_files = get_image_files(path)
 
+def img2pose(x):  return Path(f'{str(x)[:-7]}pose.txt')
 
+img2pose(img_files[0])
+```
+>Path('13/frame_00349_pose.txt')
 
+看看第一张图像:
 
+```
+im = PILImage.create(img_files[0])
+im.shape
+```
+>(460, 640)
 
+```
+im.to_thumb(160)
+```
 
+> ![biwi_first_image](img/biwi_first_image.jpg)
+
+Biwi数据集网站解释了与每个图像关联的姿势文本文件的格式, 该格式显示了头部中心的位置. 对于我们的目的而言, 此细节并不重要, 因此我们仅显示用于提取头部中心点的函数：
+
+```
+cal = np.genfromtxt(path/'01'/'rgb.cal', skip_footer=6)
+def get_ctr(f):
+    ctr = np.genfromtxt(img2pose(f), skip_header=3)
+    c1 = ctr[0] * cal[0][0]/ctr[2] + cal[0][2]
+    c2 = ctr[1] * cal[1][1]/ctr[2] + cal[1][2]
+    return tensor([c1, c2])
+
+get_ctr(img_files[0])
+```
+
+>tensor([384.6370, 259.4787])
+
+这个函数可以作为```get_y```参数传给```DataBlock```,  因为它负责标记每个数据项. 为了加快训练速度,把图片尺寸缩小一半.
+
+有点需要注意, 这里不能用随机的分割器(splitter). 因为这个数据集里同一个人可能会出现在多个图像中, 而我们需要确保模型归纳的是它没有见过的人. 每个目录包含一个人呢, 因此我们可以创建一个splitter函数, 同一个人全返回真, 这样这个人的图像只包含在验证集中.
+
+另外和之前的数据块例子唯一不同的是, 第二个块是一个```PointBlock```. 这是为了告诉fastai, 标签表示的是坐标; 这样, 在进行数据扩充(即对图像进行转换得到更多的图像)时, 这些坐标点也需要随着图像做同样的扩充.
+
+```
+biwi = DataBlock(
+    blocks = (ImageBlock, PointBlock),
+    get_items=get_image_files,
+    get_y=get_ctr,
+    splitter=FuncSplitter(lambda o: o.parent.name=='13'),
+    batch_tfms=[*aug_transforms(size=(240, 320)), Normalize.from_stats(*imagenet_stats)]
+)
+```
+>重要提示: 关于点和数据的扩充, 除了fastai之外其他库都不会自动正确地把数据的扩充应用到点上. 所以用其他库时, 可能需要对这类问题需要禁用数据扩充.
+
+在建模之前, 应该确认下数据是否OK.
+
+```
+dls = biwi.dataloaders(path)
+dls.show_batch(max_n=9, figsize=(86))
+```
+
+> ![biwi_show_batch](img/biwi_show_batch.jpg)
+
+看上去没问题, 和目测看图像一样, 看看底层的tensors 也是个好习惯(这对明确理解模型真正的样子很有帮助):
+
+```
+xb, yb = dls.one_batch()
+xb.shape, yb.shape
+```
+>(torch.Size([64, 3, 240, 320]), torch.Size([64, 1, 2]))
+
+有必要明白为什么这些小批量的形状是这样的.
+
+这里一组从变量的值:
+
+```
+yb[0]
+```
+> TensorPoint([[-0.3375,  0.2193]], device='cuda:6')
+
+可见, 我们还不必用一个单独的图像回归应用; 我们需要做的是标记数据, 然后告诉fastai, 自变量和从变量表示的是什么类型的数据.
+
+创建```Learne```和之前是一样的. 用同样的函数, 用一个新的参数.
+
+#### Trainning a Model
+
+和之前一样, 可以用```cnn_learner```创建```Learner```.  和第一章一样, 用```y_range```指定目标的范围.
+
+```
+lean = cnn_learner(dls, resnet18, y_range(-1, 1))
+```
+
+```y_range```是用```sigmoid_range```实现的,其定义为:
+
+```
+def sigmoid_range(x, lo, hi) :  return torch.sigmoid(x) * (hi-lo) + lo
+```
+
+如果定义了```y_range```, 它将作为模型的最后层. 
+
+看看它的图像:
+
+```
+plot_function(partial(sigmoid_range,lo=-1,hi=1), min=-4, max=4)
+```
+>
+![sigmoid_range_img](img/sigmoid_range_img.jpg)
+
+没有指定损失函数, 这意味着fastai会自动指定一个,看看指定的是什么:
+
+```
+dls.loss_func
+```
+>FlattenedLoss of MSELoss()
+
+由于从变量是坐标, 大部分时间我们是尝试预测尽可能接近目标值; ```MSELosse```基本上就是干这事(误差平方的均值). 如果用其他损失函数, 可以做为```loss_func```参数传给```cnn_learner```.
+
+度量函数metrics 也没有指定. 因为MSE在这个任务中可用作度量函数(虽然去平方根可能更合适一点).
+
+使用学习率查找器, 选一个合适学习率:
+
+```
+learn.lr_find()
+```
+>
+![regression_lr_find](img/regression_lr_find.jpg)
+
+用1e-2试试:
+
+```
+lr = le-2
+learn.fine_tune(3, lr)
+```
+>
+| epoch | train_loss | valid_loss | time  |
+| ----- | ---------- | ---------- | ----- |
+| 0     | 0.049630   | 0.007602   | 00:42 |
+>
+| epoch | train_loss | valid_loss | time  |
+| ----- | ---------- | ---------- | ----- |
+| 0     | 0.008714   | 0.004291   | 00:53 |
+| 1     | 0.003213   | 0.000715   | 00:53 |
+| 2     | 0.001482   | 0.000036   | 00:53 |
+
+通常, 当我们运行此命令时, 我们将损失约0.0001, 这对应于平均坐标预测误差为：
+
+```
+math.sqrt(0.0001)
+```
+
+>0.01
+
+看着不错, 再看看```Learner.show_results```显示的结果很重要. 左边是显示的是实际图像, 右边是预测图像(注意比对的是下图面部中心的红点)：
+
+```
+learn.show_results(ds_idx=1, nrows=3, figsize=(6, 8))
+```
+>
+![biwi_target_vs_prediction](img/biwi_target_vs_prediction.jpg)
+
+令人惊讶的是, 仅用几分钟的计算, 我们就创建了如此精确的关键点模型, 并且没有任何特定于领域的特殊应用程序.  这是建立在灵活的API上并使用转移学习的强大功能! 尤其令人惊讶的是, 即使在完全不同的任务之间, 我们也能如此有效地使用转移学习, 我们训练有素的模型进行了图像分类训练, 并对图像回归进行了微调.
+
+### Conlusion
+
+乍一看是完全不同的问题(单标签分类, 多标签分类和回归), 但我们最终使用了相同的模型, 但输出的数量却不同. 损失函数是变化的一件事, 这就是为什么仔细检查您对问题使用正确的损失函数很重要的原因.
+
+fastai会自动尝试从您构建的数据中选择正确的数据: 但是如果您使用的是纯PyTorch来构建DataLoader, 请确保在决定损失函数的选择时要三思而后行, 并记住最可能:
+
+- `nn.CrossEntropyLoss`  单标签分类问题
+
+- `nn.BCEWithLogitsLoss` 用于多标签分类问题
+
+- `nn.MSELoss`  用于回归问题
+
+### Questionnaire
+
+1. How could multi-label classification improve the usability of the bear classifier?
+1. How do we encode the dependent variable in a multi-label classification problem?
+1. How do you access the rows and columns of a DataFrame as if it was a matrix?
+1. How do you get a column by name from a DataFrame?
+1. What is the difference between a `Dataset` and `DataLoader`?
+1. What does a `Datasets` object normally contain?
+1. What does a `DataLoaders` object normally contain?
+1. What does `lambda` do in Python?
+1. What are the methods to customize how the independent and dependent variables are created with the data block API?
+1. Why is softmax not an appropriate output activation function when using a one hot encoded target?
+1. Why is `nll_loss` not an appropriate loss function when using a one-hot-encoded target?
+1. What is the difference between `nn.BCELoss` and `nn.BCEWithLogitsLoss`?
+1. Why can't we use regular accuracy in a multi-label problem?
+1. When is it okay to tune a hyperparameter on the validation set?
+1. How is `y_range` implemented in fastai? (See if you can implement it yourself and test it without peeking!)
+1. What is a regression problem? What loss function should you use for such a problem?
+1. What do you need to do to make sure the fastai library applies the same data augmentation to your input images and your target point coordinates?
 
 [Back to contents page](index.md)
