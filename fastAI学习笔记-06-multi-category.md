@@ -503,7 +503,7 @@ def sigmoid_range(x, lo, hi) :  return torch.sigmoid(x) * (hi-lo) + lo
 ```
 plot_function(partial(sigmoid_range,lo=-1,hi=1), min=-4, max=4)
 ```
->
+
 ![sigmoid_range_img](img/sigmoid_range_img.jpg)
 
 没有指定损失函数, 这意味着fastai会自动指定一个,看看指定的是什么:
@@ -524,7 +524,6 @@ dls.loss_func
 learn.lr_find()
 ```
 
->
 ![regression_lr_find](img/regression_lr_find.jpg)
 
 用1e-2试试:
@@ -559,7 +558,6 @@ math.sqrt(0.0001)
 learn.show_results(ds_idx=1, nrows=3, figsize=(6, 8))
 ```
 
->
 ![biwi_target_vs_prediction](img/biwi_target_vs_prediction.jpg)
 
 令人惊讶的是, 仅用几分钟的计算, 我们就创建了如此精确的关键点模型, 并且没有任何特定于领域的特殊应用程序.  这是建立在灵活的API上并使用转移学习的强大功能! 尤其令人惊讶的是, 即使在完全不同的任务之间, 我们也能如此有效地使用转移学习, 我们训练有素的模型进行了图像分类训练, 并对图像回归进行了微调.
