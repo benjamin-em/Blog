@@ -511,6 +511,7 @@ plot_function(partial(sigmoid_range,lo=-1,hi=1), min=-4, max=4)
 ```
 dls.loss_func
 ```
+
 >FlattenedLoss of MSELoss()
 
 由于从变量是坐标, 大部分时间我们是尝试预测尽可能接近目标值; ```MSELosse```基本上就是干这事(误差平方的均值). 如果用其他损失函数, 可以做为```loss_func```参数传给```cnn_learner```.
@@ -522,6 +523,7 @@ dls.loss_func
 ```
 learn.lr_find()
 ```
+
 >
 ![regression_lr_find](img/regression_lr_find.jpg)
 
@@ -531,6 +533,7 @@ learn.lr_find()
 lr = le-2
 learn.fine_tune(3, lr)
 ```
+
 >
 | epoch | train_loss | valid_loss | time  |
 | ----- | ---------- | ---------- | ----- |
@@ -555,6 +558,7 @@ math.sqrt(0.0001)
 ```
 learn.show_results(ds_idx=1, nrows=3, figsize=(6, 8))
 ```
+
 >
 ![biwi_target_vs_prediction](img/biwi_target_vs_prediction.jpg)
 
