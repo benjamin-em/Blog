@@ -490,7 +490,7 @@ yb[0]
 lean = cnn_learner(dls, resnet18, y_range(-1, 1))
 ```
 
-```y_range```是用```sigmoid_range```实现的,其定义为:
+这里```y_range```是用```sigmoid_range```实现的,其定义为:
 
 ```
 def sigmoid_range(x, lo, hi) :  return torch.sigmoid(x) * (hi-lo) + lo
