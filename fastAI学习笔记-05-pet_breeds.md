@@ -10,10 +10,11 @@ fastbook.setup_book()
 from fastbook import *
 ```
 
-### Image Classification
+## Image Classification
 
 现在深入一点，什么是计算机视觉模型(computer vision model), NLP模型, tabular模型等等？怎样构建一个符合你特定领域需求的框架？
 怎样从训练过程中得到尽可能最好的结果？怎样处理更快?当数据集发生变化时，我们应该做怎样的修改？现在在第一章例子的基础上做两件事：  
+
 - 优化
 - 使其在更多种类的数据上得到应用
 
@@ -21,9 +22,9 @@ from fastbook import *
 
 ### From Dogs and Cats to Pet Breeds
 
-第一个模型演示了怎样区分狗子和猫子. 就在几年前,这是一个很大的挑战,但现在so easy！而且事实证明,同样的数据集允许我们解决一些更有
-挑战性的问题：指出途中宠物的品种.  
+第一个模型演示了怎样区分狗子和猫子. 就在几年前,这是一个很大的挑战,但现在so easy！而且事实证明,同样的数据集允许我们解决一些更有挑战性的问题：指出途中宠物的品种.  
 网站上已经下载了“宠物”的数据集.
+
 ```
 from fastai.vision.all import *
 path = untar_data(URLs.PETS)
@@ -45,6 +46,7 @@ path
 
 在特定领域,也有一些例外,如在基因学中,可以是二进制的数据库甚至可以是网络流.但绝大多数领域还是上面那两种,或两种的结合.
 用```ls```方法看下数据集里面有什么
+
 ```
 Path.BASE_PATH = path
 path.ls()
@@ -72,7 +74,7 @@ fname
 re.findall(r'(.+)_\d+.jpg$', fname.name)
 ```
 >['great_pyrenees']
->
+
 这里```findall```是python的re标准库中查找一个字符串的方法.这里查找的是下划线,点,"jpg"之前所有的字符.正则表达式在fastai中可以用来标记数据-这就是```RegexLabeller```类
 ```
 pets = DataBlock(blocks = (ImageBlock, CategoryBlock),
@@ -99,14 +101,16 @@ batch_tfms=aug_transforms(size=224, min_scale=0.75)
 
 调整大小的第一步是创建足够大的图像,使它们具有余量,允许在内部区域进行进一步增强变换,而不是创建空白区域.这个转换会选择图像长度或宽度中较长者为边长,并随机裁剪成一个正方形.  
 第二步，将GPU用于所有数据扩充，并且所有可能破坏性的操作都一起完成，最后进行一次插值  
-![bear_sample](https://github.com/fastai/fastbook/blob/master/images/att_00060.png?raw=1)  
+![bear_sample](img/bear_sample.png)  
 图中两步：
+
 1. 按长度或宽度裁剪：```item_tfms```实现的就是这一步,这是在将图片copy到GPU之前执行的,只是为了保证所有图片是一样的大小.训练集中,是随机裁剪的,但在验证集中,裁剪选择的总是正中心的方形.
 2. 随机裁剪并扩充,```batch_tfms```实现的这一步,从"batch"可以看出,这是在GPU上将一整批一次性处理的,也就是说,速度会很快.在验证集上，仅在此处将尺寸调整为模型所需的最终尺寸。 在训练集上，首先进行随机裁剪和任何其他扩充。
 
-下面代码，中
+下面代码中
 右图：一张图片放大,插值,旋转然后再插值(这是所有其他深度学习库使用的方法),
 左图：放大和旋转作为一步操作,然后一次性插值(这是fastAI的实现)，
+
 ```
 #hide_input
 #id interpolations
@@ -145,6 +149,7 @@ dls.show_batch(nrows=1, ncols=3)
 ![dog_breeds](img/dog_breeds.jpg)  
 数据科学家很可能并不熟悉数据本身,例如不知道上图中每个狗子的品种,这就需要google查对应的品种了.  
 如果再构建```DataBlock```时出错(注意不一定失败),可能看不出来错误,要调试可以用```summary```方法.它尝试从提供的源创建批处理,会包含许多信息.另外如果失败,会看到错误的时间,并提供帮助信息. 例如一个常见的错误,忘记使用```Resize```变换,最终会得到不同大小的图片,并且无法处理他们,这种情况：
+
 ```
 #hide_output
 pets1 = DataBlock(blocks = (ImageBlock, CategoryBlock),
@@ -307,6 +312,7 @@ torch.Size([3, 375, 500])
 ```
 我们可以确切看到如何收集数据(get_items)并将其拆分(spitter),如何从文件名转到样本(元组(image, category)),然后应用了那些转换项(item_tfms, batch_tfms)啊，为何在收集样本到一个batch时会失败(因为图片形状不同)  
 一旦觉得数据看起来没问题,建议用这些数据去训练一个简单的模型.很多人会推迟训练一个实际模型太久了,这样他们会很难看到一个基线结果的样子.很可能你的问题压根就不需要很多很复杂的特定领域的工程.或者也许看起来完全没有训练到模型.有很多东西,我们需要越早知道越好. 作为作为初始测试,我们会用一个常用的简单模型：
+
 ```
 learn = cnn_learner(dls, resnet34, metrics=error_rate)
 learn.fine_tune(2)
@@ -329,7 +335,7 @@ epoch|	train_loss|	valid_loss|	error_rate|	time
 
 我们必须先理解损失函数看到的实际数据和激活值长什么样,才能理解cross-entropy是如何对两个以上种类的从变量生效的.
 
-### Viewing Activations and Labels
+#### Viewing Activations and Labels
 
 看下模型的激活值.用one_batch方法可以从```DataLoaders```获取一批实际数据的.
 ```
@@ -380,7 +386,7 @@ acts
         [ 4.4164, -1.2760],
         [ 0.9233,  0.5347],
         [ 1.0698,  1.6187]])
-        
+
 直接取sigmoid是不对的,因为没有获取到每一行加起来为1(我们希望3的概率和7的概率加起来为1)
 
 ```
@@ -394,7 +400,7 @@ acts.sigmoid()
         [0.7157, 0.6306],
         [0.7446, 0.8346]])
 >上面这是不对的
- 
+
 在第四章中,我们的神经网络对每个图像创建了一个激活值,我们将将它传进sigmoid函数.这单个激活值表示模型认为输入为3的置信度.二分类问题是分类问题中一种特殊情况,因为目标可以认为是单个布尔值,正如mnist_loss中那样做的一样.不过二分类问题也可以看做一般的分类问题,只是这种情况下正好是两个种类.像熊的分类器例子一样,神经网络会为每个种类返回一个激活值.
 
 在二分类的问题中,一对激活值仅表示相对的置信度:3和7. 所有值,不论是都很高还是都很低不重要,重要的是哪个更高,高多少.
@@ -444,7 +450,7 @@ sm_acts
         [0.9966, 0.0034],  
         [0.5959, 0.4041],  
         [0.3661, 0.6339]])  
-        
+
 我们也许可以创建其他有这样特性的函数,所有激活值在0和1之间.但是没有哪个函数像softmax一样,和sigmoid函数具有相同的关系,既光滑又对称.另外，我们很快就会看到softmax函数与损失函数紧密结合.  
 如果有3个输出激活值,例如在熊的分类器中,对单个熊图像计算softmax会像这样：  
 ![bear_class_img](img/bear_class_img.jpg)
@@ -467,7 +473,8 @@ def mnist_loss(inputs, targets):
     inputs = inputs.sigmoid()
     return torch.where(targets==1, 1-inputs, inputs).mean()
 ```
-就行从sigmoid迁移到softmax一样,我们也需要将损失函数从二分类扩展到多分类-这就需要能够区分任何数字的种类.在softmax后,我们的激活值会在0到1之间,并且每批量预测中一行的和为1.我们的targets在0到36之间.
+
+就像从sigmoid迁移到softmax一样,我们也需要将损失函数从二分类扩展到多分类-这就需要能够区分任何数字的种类.在softmax后,我们的激活值会在0到1之间,并且每批量预测中一行的和为1.我们的targets在0到36之间.
 
 在二分类的情况中,用```torch.where```选取```inputs```和```1-inputs```.如果把二分类问题当做多分类问题的一种的话,实际上会更容易,因为我们现在有两列,等效地包含的```inputs```和```1-inputs```.所以我们需要做的只是选取恰当的列.在手写3和7的例子中,假设这是我们的lables:
 ```
@@ -483,8 +490,9 @@ sm_acts
         [0.9966, 0.0034],  
         [0.5959, 0.4041],  
         [0.3661, 0.6339]])  
-        
+
 对```targ```的每一项,我们可以作为索引用来选取```sm_acts```中合适的列.这样:
+
 ```
 idx = range(6)
 sm_acts[idx, targ]
@@ -527,7 +535,7 @@ plot_function(torch.log, min=0,max=4)
 ```
 
  ![logarithm](img/logarithm_img.jpg)
- 
+
 对数的实现是这样：
 ```
 y = b**a
@@ -584,15 +592,15 @@ interp.most_confused(min_val=5)
  ('Siamese', 'Birman', 6),  
  ('Bengal', 'Egyptian_Mau', 5),  
  ('american_pit_bull_terrier', 'american_bulldog', 5)]  
- 
+
  同样,我们也可以通过谷歌来看宠物是哪个品种. 接下来优化我们的模型.
- 
+
 ### Improving Our Model
- 
+
  先看一点迁移学习(transfer learning)的知识,以及如何在不破坏与训练权重的情况下,微调预训练好的模型到最好.训练模型首先要做的是设置学习率(learning rate).Fastai提供了一个工具.
- 
+
 #### The Learning Rate Finder
- 
+
  设置合适的学习率是训练模型最重要的工作之一. 学习率设置太小可能需要花费太多的训练时期.这不仅良妃时间,也增加了过拟合的风险,因为每次完整传入一次数据,模型就有更多的机会记住数据.  
  当然把学习率设很大也不行：
 ```
@@ -820,27 +828,80 @@ Remember: the choices made in the implementation of cross-entropy loss are not t
 >直接放原文：
 
 1. Why do we first resize to a large size on the CPU, and then to a smaller size on the GPU?
+    因为尺寸不同,在CPU上裁剪成相对较大的尺寸, 留下充足的余量便于后面的转换. 之后copy 到GPU上, 然后利用GPU 并行计算速度快的优势对需要相同操作的图片进行整批的转换.
+
 2. If you are not familiar with regular expressions, find a regular expression tutorial, and some problem sets, and complete them. Have a look on the book's website for suggestions.
+   [python3.9.2的正则表达式官方文档](https://docs.python.org/zh-cn/3.9/library/re.html)和一篇[廖雪峰的简单教材](https://www.liaoxuefeng.com/wiki/1016959663602400/1017639890281664)
+
 3. What are the two ways in which data is most commonly provided, for most deep learning datasets?
+    文件的形式 - 一个文件表示一项数据.
+    数据表的形式 - 数据表包含数据项的内容, 如数据文件的路径.
+
 4. Look up the documentation for L and try using a few of the new methods that it adds.
+
 5. Look up the documentation for the Python pathlib module and try using a few methods of the Path class.
+
 6. Give two examples of ways that image transformations can degrade the quality of the data.
+    -图片旋转45度,会对四个角进行填充空白.
+    -把图片裁剪成一个正方形, 可能会失去一部分有效数据.
+
 7. What method does fastai provide to view the data in a DataLoaders?
+    DataLoader.show_batch
+
 8. What method does fastai provide to help you debug a DataBlock?
+    DataBlock.summary
+```
+    pets1 = DataBlock(blocks = (ImageBlock, CategoryBlock),
+                 get_items=get_image_files, 
+                 splitter=RandomSplitter(seed=42),
+                 get_y=using_attr(RegexLabeller(r'(.+)_\d+.jpg$'), 'name'))
+pets1.summary(path/"images")
+```
+
 9. Should you hold off on training a model until you have thoroughly cleaned your data?
+    No. It is best to create a baseline model as soon as possible.
+
 10. What are the two pieces that are combined into cross-entropy loss in PyTorch?
+    softmax and log likelihood
+
 11. What are the two properties of activations that softmax ensures? Why is this important?
+    所有激活值介于0到1直接, 并且和为1. 因为这一点正好符合概率和1 的特点. It makes the outputs for the classes add up to one. This means the model can only predict one class. Additionally, it amplifies small changes in the output activations, which is helpful as it means the model will select a label with higher confidence (good for problems with definite labels).
+
 12. When might you want your activations to not have these two properties?
-13. Calculate the exp and softmax columns of <> yourself (i.e., in a spreadsheet, with a calculator, or in a notebook).
+    When you have multi-label classification problems - more than one label possible.
+
+13. Calculate the exp and softmax columns of <bear_softmax> yourself (i.e., in a spreadsheet, with a calculator, or in a notebook).
+
 14. Why can't we use torch.where to create a loss function for datasets where our label can have more than two categories?
+    Because torch.where can only select between two possibilities while for multi-class classification, we have multiple possibilities.
+
 15. What is the value of log(-2)? Why?
+    This value is not defined. The logarithm is the inverse of the exponential function, and the exponential function is always positive no matter what value is passed. So the logarithm is not defined for negative values.
+
 16. What are two good rules of thumb for picking a learning rate from the learning rate finder?
+    - 比达到最小损耗的位置小一个数量级（即最小损耗除以10）one order of magnitude less than where the minimum loss was achieved (i.e. the minimum divided by 10)
+    - 损失值开始明显下降的点之前的一个点.
+    
 17. What two steps does the fine_tune method do?
+    - 冻结其它层, 对最后加入的层进行一个epoch的训练;
+    - 解冻其他层, 对所有层进行训练.
+
 18. In Jupyter Notebook, how do you get the source code for a method or function?
+    在方法或函数名前加上??  运行这一行
+
 19. What are discriminative learning rates?
+    在靠前的神经网络层使用较低的学习率, 在靠后的层使用较高的学习率.
+
 20. How is a Python slice object interpreted when passed as a learning rate to fastai?
+    会把第一个较小的值作为第一层的学习率, 第二个较大的作为最后一层的学习率, 中间其他层用这两个值之间均匀等分的值作为学习率.
+
 21. Why is early stopping a poor choice when using 1cycle training?
+   过早停止训练的话, 训练可能还没有达到最佳的,能使得模型更容易提升的学习率. 更推荐的是,选一个较晚的位置停止训练-虽然损失开始下降. 然后找到下降之前的这个epoch数, 重头开始进行这么多epoch数的训练.
+
 22. What is the difference between resnet50 and resnet101?
+    The number 50 and 101 refer to the number of layers in the models. Therefore, ResNet101 is a larger model with more layers versus ResNet50. These model variants are commonly as there are ImageNet-pretrained weights available.
+
 23. What does to_fp16 do?
+    This enables mixed-precision training, in which less precise numbers are used in order to speed up training.
 
 [Back to contents page](index.md)

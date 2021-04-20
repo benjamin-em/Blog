@@ -311,7 +311,7 @@ def is_3(x): return mnist_distance(x,mean3) < mnist_distance(x,mean7)
 is_3(a_3), is_3(a_3).float()
 ```
 > (tensor(True), tensor(1.))
- 
+
 ```
 is_3(valid_3_tens)
 ```
@@ -608,7 +608,7 @@ correct
         [ True],  
         [False],  
         [False]])  
-        
+
 ```
 corrects.float().mean().itern()
 ```
@@ -702,7 +702,7 @@ list(dl)
 >[tensor([ 0,  7,  4,  5, 11]),
  tensor([ 9,  3,  8, 14,  6]),
  tensor([12,  2,  1, 10, 13])]
- 
+
  为了训练模型,我们不只是需要数据的集合,这个集合还需要包含独立变量和标记(input 和targets),这两个构成一个元组,这些元组的集合子PyTorch中叫做Dataset,举个非常简单的例子：
 ```
 ds = L(enumerate(string.ascii_lowercase))
@@ -953,16 +953,16 @@ learn.fit(10, lr=lr)
 
 |epoch|	train_loss|	valid_loss|	batch_accuracy|	time|
 |----|----|----|----|----|
-|0|	0.636709|	0.503144|	0.495584|	00:00|  
+|0|	0.636709|	0.503144|	0.495584|	00:00|
 |1|	0.429828|	0.248517|	0.777233|	00:00|
-|2|	0.161680|	0.155361|	0.861629|	00:00|  
-|3|	0.072948|	0.097722|	0.917566|	00:00|  
-|4|	0.040128|	0.073205|	0.936212|	00:00| 
-|5|	0.027210|	0.059466|	0.950442|	00:00|  
-|6|	0.021837|	0.050799|	0.957802|	00:00|  
-|7|	0.019398|	0.044980|	0.964181|	00:00|  
-|8|	0.018122|	0.040853|	0.966143|	00:00|  
-|9|	0.017330|	0.037788|	0.968106|	00:00|  
+|2|	0.161680|	0.155361|	0.861629|	00:00|
+|3|	0.072948|	0.097722|	0.917566|	00:00|
+|4|	0.040128|	0.073205|	0.936212|	00:00|
+|5|	0.027210|	0.059466|	0.950442|	00:00|
+|6|	0.021837|	0.050799|	0.957802|	00:00|
+|7|	0.019398|	0.044980|	0.964181|	00:00|
+|8|	0.018122|	0.040853|	0.966143|	00:00|
+|9|	0.017330|	0.037788|	0.968106|	00:00|
 
 
 如你所见，PyTorch和fastai类没有什么神奇之处。 它们只是方便的预包装件，让你更轻松！ （它们还提供了很多额外的功能，我们将在以后的章节中使用。）
@@ -1010,7 +1010,7 @@ simple_net = nn.Sequential(
     nn.ReLU(),
     nn.Linear(30,1)
 )
-```  
+```
 
 
 第一行```nn.Sequential```创建一个模块，该模块将依次调用每个列出的层或函数。  
@@ -1135,34 +1135,34 @@ epoch|	train_loss|	valid_loss|	accuracy|	time
 
 ### 问题
 1. How is a grayscale image represented on a computer? How about a color image?  
-  以0-255为范围,从白(0)到黑(255)之间的数字灰度显示一幅黑白(灰度)像素.彩色图像是RGB三种颜色按一定比例混合产生一个颜色像素.
+    以0-255为范围,从白(0)到黑(255)之间的数字灰度显示一幅黑白(灰度)像素.彩色图像是RGB三种颜色按一定比例混合产生一个颜色像素.
 1. How are the files and folders in the `MNIST_SAMPLE` dataset structured? Why?  
-  它将训练集,验证集文件按目录分开,并在下一级目录中,按数字名来存放对应的数字如"train/7"是训练集下数字7的目录.这样以目录的形式可以很方便地区分验证集,测试集.
+    它将训练集,验证集文件按目录分开,并在下一级目录中,按数字名来存放对应的数字如"train/7"是训练集下数字7的目录.这样以目录的形式可以很方便地区分验证集,测试集.
 1. Explain how the "pixel similarity" approach to classifying digits works.  
-  将验证集中的数字图像堆叠并将堆叠在同一位置的像素取平均值，得到“理想”的数字图像,将待检测的数字图像与“理想”图像比较检测其差距大小.
+    将验证集中的数字图像堆叠并将堆叠在同一位置的像素取平均值，得到“理想”的数字图像,将待检测的数字图像与“理想”图像比较检测其差距大小.
 1. What is a list comprehension? Create one now that selects odd numbers from a list and doubles them.  
-  列表推导式, ```[x*2 for x in range(1,11) if x%2 != 0]```
+    列表推导式, ```[x*2 for x in range(1,11) if x%2 != 0]```
 1. What is a "rank-3 tensor"?  
-  rank-3 tensor 是一系列rank-2 tensor,也就一系列矩阵.
+    rank-3 tensor 是一系列rank-2 tensor,也就一系列矩阵.
 1. What is the difference between tensor rank and shape? How do you get the rank from the shape?  
-  shape描述了每个轴的长度,也就是每个阶的大小; rank指shape的长度, 也就说tensor有几阶.
+    shape描述了每个轴的长度,也就是每个阶的大小; rank指shape的长度, 也就说tensor有几阶.
 1. What are RMSE and L1 norm?  
-  RMSE指root mean squared error，也就是差的平方取平均值再开放; L1 范式指对差的绝对值取平均值
+    RMSE指root mean squared error，也就是差的平方取平均值再开放; L1 范式指对差的绝对值取平均值
 1. How can you apply a calculation on thousands of numbers at once, many thousands of times faster than a Python loop?  
-  利用并行计算能力,使用广播(broadcasting)进行计算.
+    利用并行计算能力,使用广播(broadcasting)进行计算.
 1. Create a 3×3 tensor or array containing the numbers from 1 to 9. Double it. Select the bottom-right four numbers.  
-  代码如下```T = tensor(range(1,10)).view(-1,3)
-  T1 = T*2
-  Tbr4 = T1[:2, :2]```
+    代码如下```T = tensor(range(1,10)).view(-1,3)
+    T1 = T*2
+    Tbr4 = T1[:2, :2]```
 1. What is broadcasting?  
-  在张量和数字间进行运算时,把数字假设为相同形状的张量,再在两个张量间进行并行计算,它不会耗费更多额外内存.
+    在张量和数字间进行运算时,把数字假设为相同形状的张量,再在两个张量间进行并行计算,它不会耗费更多额外内存.
 1. Are metrics generally calculated using the training set, or the validation set? Why?  
-  metrics一般是用验证集计算的,因为这样可以避免无意间过拟合,因为模型可能已经记住训练集的数据,使用训练集的话会导致预测不准.
-  metrics只是作为人为判断模型好坏的量化标准. 但它可能不具有平滑,无跳变的特征,无法求导来反应微小变化,所以无法对参数进行优化,不宜作为
+    metrics一般是用验证集计算的,因为这样可以避免无意间过拟合,因为模型可能已经记住训练集的数据,使用训练集的话会导致预测不准.
+    metrics只是作为人为判断模型好坏的量化标准. 但它可能不具有平滑,无跳变的特征,无法求导来反应微小变化,所以无法对参数进行优化,不宜作为
 1. What is SGD?  
-  SGD(stochastic gradient descent)随机梯度递减,
+    SGD(stochastic gradient descent)随机梯度递减,
 1. Why does SGD use mini-batches?  
-  Calculating it for the whole dataset would take a very long time. Calculating it for a single item would not use much information, so it would result in a very imprecise and unstable gradient. That is, you'd be going to the trouble of updating the weights, but taking into account only how that would improve the model's performance on that single item. So instead we take a compromise between the two: we calculate the average loss for a few data items at a time. Another good reason for using mini-batches rather than calculating the gradient on individual data items is that, in practice, we nearly always do our training on an accelerator such as a GPU. These accelerators only perform well if they have lots of work to do at a time, so it's helpful if we can give them lots of data items to work on. Using mini-batches is one of the best ways to do this. However, if you give them too much data to work on at once, they run out of memory—making GPUs happy is also tricky!
+    Calculating it for the whole dataset would take a very long time. Calculating it for a single item would not use much information, so it would result in a very imprecise and unstable gradient. That is, you'd be going to the trouble of updating the weights, but taking into account only how that would improve the model's performance on that single item. So instead we take a compromise between the two: we calculate the average loss for a few data items at a time. Another good reason for using mini-batches rather than calculating the gradient on individual data items is that, in practice, we nearly always do our training on an accelerator such as a GPU. These accelerators only perform well if they have lots of work to do at a time, so it's helpful if we can give them lots of data items to work on. Using mini-batches is one of the best ways to do this. However, if you give them too much data to work on at once, they run out of memory—making GPUs happy is also tricky!
 1. What are the seven steps in SGD for machine learning?   
    1.Initialize the parameters;  
    2.Calculate the predictions;  
@@ -1186,22 +1186,24 @@ epoch|	train_loss|	valid_loss|	accuracy|	time
 1. Draw the sigmoid function. What is special about its shape?  
 ![sigmoid](img/Sigmoid_img.jpg)  
 它的函数值总介于0和1之间,x越小,y越趋近于0；x越大,y越趋近于1. 并且图像关于(0,0.5)呈中心对称.
-1. What is the difference between a loss function and a metric?
+1. What is the difference between a loss function and a metric?  
    The key difference is that the metric is to drive human understanding and the loss is to drive automated learning. To drive automated learning, the loss must be a function that has a meaningful derivative. It can't have big flat sections and large jumps, but instead must be reasonably smooth. 
-1. What is the function to calculate new weights using a learning rate?
+1. What is the function to calculate new weights using a learning rate?  
     Optimizer step
-1. What does the `DataLoader` class do?
+1. What does the `DataLoader` class do?  
     A DataLoader can take any Python collection and turn it into an iterator over many batches, like so:  
+
     ```
     coll = range(15)
     dl = DataLoader(coll, batch_size=5, shuffle=True)
     list(dl)
     ```
- 
+
     >[tensor([ 3, 12,  8, 10,  2]),  
       tensor([ 9,  4,  7, 14,  5]),  
       tensor([ 1, 13,  0,  6, 11])]  
-1. Write pseudocode showing the basic steps taken in each epoch for SGD.
+1. Write pseudocode showing the basic steps taken in each epoch for SGD.  
+
    ```
    for x,y in dl:
        preds = model(x)
@@ -1209,36 +1211,38 @@ epoch|	train_loss|	valid_loss|	accuracy|	time
        loss.backward()
        parameters -= parameters.grad * lr
    ```
-   
-1. Create a function that, if passed two arguments `[1,2,3,4]` and `'abcd'`, returns `[(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')]`. What is special about that output data structure?
+
+1. Create a function that, if passed two arguments `[1,2,3,4]` and `'abcd'`, returns `[(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')]`. What is special about that output data structure?  
+
    ```
    def func(a,b):
        return list(zip(a,b))
    ```
-1. What does `view` do in PyTorch?
+
+1. What does `view` do in PyTorch?  
    It changes the shape of a Tensor without changing its contents.
-1. What are the "bias" parameters in a neural network? Why do we need them?
+1. What are the "bias" parameters in a neural network? Why do we need them?  
    Without the bias parameters, if the input is zero, the output will always be zero. Therefore, using bias parameters adds additional flexibility to the model.
-1. What does the `@` operator do in Python?
+1. What does the `@` operator do in Python?  
    Multiplication of matrixes
-1. What does the `backward` method do?
+1. What does the `backward` method do?  
    Calculate the gradient.
-1. Why do we have to zero the gradients?
+1. Why do we have to zero the gradients?  
    Because PyTorch will stored the previous gradients, and added with current one. If the training loop function is called multiple times, without zeroing the gradients, the gradient of current loss would be added to the previously stored gradient value.
-1. What information do we have to pass to `Learner`?
+1. What information do we have to pass to `Learner`?  
    The ```DataLoaders```, the model, the optimization function, loss function, and optionally any metrics to print.
-1. Show Python or pseudocode for the basic steps of a training loop.
+1. Show Python or pseudocode for the basic steps of a training loop.  
    ```
    params = init_paramters()
- 
+
    def train_epoch(model, lr, params):
        for xb, yb in dl:
           calc_gradient(xb, yb, model)
           for p in params:
              p -= p.gradient * lr
              p.gradient.zer_()
-   
-    
+
+
    for i in range(20):
       train_epoch(model, lr, params)
    ```
@@ -1247,13 +1251,15 @@ epoch|	train_loss|	valid_loss|	accuracy|	time
    ReLU 是一个将负数变为0，正式保持原有值的函数.  
    ![relu](img/relu_img.jpg)
    
-1. What is an "activation function"?
+1. What is an "activation function"?  
    激活函数是线性层之间的非线性函数,多个线性层直接组合等效为一个线性层,失去了多层的意义达不到不到提高模型效果的要求, 加入非线性层为了消除这种特性. In fact, it can be mathematically proven that such a model can solve any computable problem to an arbitrarily high accuracy, if the model is large enough with the correct weights. This is known as the universal approximation theorem.
    
-1. What's the difference between `F.relu` and `nn.ReLU`?
+1. What's the difference between `F.relu` and `nn.ReLU`?  
    F.relu is a Python function for the relu activation function. On the other hand, nn.ReLU is a PyTorch module. This means that it is a Python class that can be called as a function in the same way as F.relu.
    
-1. The universal approximation theorem shows that any function can be approximated as closely as needed using just one nonlinearity. So why do we normally use more?
+1. The universal approximation theorem shows that any function can be approximated as closely as needed using just one nonlinearity. So why do we normally use more?  
     There are practical performance benefits to using more than one nonlinearity. We can use a deeper model with less number of parameters, better performance, faster training, and less compute/memory requirements.
 
 [Back to contents page](index.md)
+
+   ```
