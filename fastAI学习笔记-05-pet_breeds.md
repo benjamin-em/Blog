@@ -827,13 +827,13 @@ Remember: the choices made in the implementation of cross-entropy loss are not t
 
 >直接放原文：
 
-1. Why do we first resize to a large size on the CPU, and then to a smaller size on the GPU?
+1. Why do we first resize to a large size on the CPU, and then to a smaller size on the GPU?  
     因为尺寸不同,在CPU上裁剪成相对较大的尺寸, 留下充足的余量便于后面的转换. 之后copy 到GPU上, 然后利用GPU 并行计算速度快的优势对需要相同操作的图片进行整批的转换.
 
-2. If you are not familiar with regular expressions, find a regular expression tutorial, and some problem sets, and complete them. Have a look on the book's website for suggestions.
+2. If you are not familiar with regular expressions, find a regular expression tutorial, and some problem sets, and complete them. Have a look on the book's website for suggestions.  
    [python3.9.2的正则表达式官方文档](https://docs.python.org/zh-cn/3.9/library/re.html)和一篇[廖雪峰的简单教材](https://www.liaoxuefeng.com/wiki/1016959663602400/1017639890281664)
 
-3. What are the two ways in which data is most commonly provided, for most deep learning datasets?
+3. What are the two ways in which data is most commonly provided, for most deep learning datasets?  
     文件的形式 - 一个文件表示一项数据.
     数据表的形式 - 数据表包含数据项的内容, 如数据文件的路径.
 
@@ -841,14 +841,14 @@ Remember: the choices made in the implementation of cross-entropy loss are not t
 
 5. Look up the documentation for the Python pathlib module and try using a few methods of the Path class.
 
-6. Give two examples of ways that image transformations can degrade the quality of the data.
+6. Give two examples of ways that image transformations can degrade the quality of the data.  
     -图片旋转45度,会对四个角进行填充空白.
     -把图片裁剪成一个正方形, 可能会失去一部分有效数据.
 
-7. What method does fastai provide to view the data in a DataLoaders?
+7. What method does fastai provide to view the data in a DataLoaders?  
     DataLoader.show_batch
 
-8. What method does fastai provide to help you debug a DataBlock?
+8. What method does fastai provide to help you debug a DataBlock?  
     DataBlock.summary
 ```
     pets1 = DataBlock(blocks = (ImageBlock, CategoryBlock),
@@ -864,44 +864,44 @@ pets1.summary(path/"images")
 10. What are the two pieces that are combined into cross-entropy loss in PyTorch?
     softmax and log likelihood
 
-11. What are the two properties of activations that softmax ensures? Why is this important?
+11. What are the two properties of activations that softmax ensures? Why is this important?  
     所有激活值介于0到1直接, 并且和为1. 因为这一点正好符合概率和1 的特点. It makes the outputs for the classes add up to one. This means the model can only predict one class. Additionally, it amplifies small changes in the output activations, which is helpful as it means the model will select a label with higher confidence (good for problems with definite labels).
 
-12. When might you want your activations to not have these two properties?
+12. When might you want your activations to not have these two properties?  
     When you have multi-label classification problems - more than one label possible.
 
 13. Calculate the exp and softmax columns of <bear_softmax> yourself (i.e., in a spreadsheet, with a calculator, or in a notebook).
 
-14. Why can't we use torch.where to create a loss function for datasets where our label can have more than two categories?
+14. Why can't we use torch.where to create a loss function for datasets where our label can have more than two categories?  
     Because torch.where can only select between two possibilities while for multi-class classification, we have multiple possibilities.
 
-15. What is the value of log(-2)? Why?
+15. What is the value of log(-2)? Why?  
     This value is not defined. The logarithm is the inverse of the exponential function, and the exponential function is always positive no matter what value is passed. So the logarithm is not defined for negative values.
 
-16. What are two good rules of thumb for picking a learning rate from the learning rate finder?
+16. What are two good rules of thumb for picking a learning rate from the learning rate finder?  
     - 比达到最小损耗的位置小一个数量级（即最小损耗除以10）one order of magnitude less than where the minimum loss was achieved (i.e. the minimum divided by 10)
     - 损失值开始明显下降的点之前的一个点.
     
-17. What two steps does the fine_tune method do?
+17. What two steps does the fine_tune method do?  
     - 冻结其它层, 对最后加入的层进行一个epoch的训练;
     - 解冻其他层, 对所有层进行训练.
 
-18. In Jupyter Notebook, how do you get the source code for a method or function?
+18. In Jupyter Notebook, how do you get the source code for a method or function?  
     在方法或函数名前加上??  运行这一行
 
-19. What are discriminative learning rates?
+19. What are discriminative learning rates?  
     在靠前的神经网络层使用较低的学习率, 在靠后的层使用较高的学习率.
 
-20. How is a Python slice object interpreted when passed as a learning rate to fastai?
+20. How is a Python slice object interpreted when passed as a learning rate to fastai?  
     会把第一个较小的值作为第一层的学习率, 第二个较大的作为最后一层的学习率, 中间其他层用这两个值之间均匀等分的值作为学习率.
 
-21. Why is early stopping a poor choice when using 1cycle training?
+21. Why is early stopping a poor choice when using 1cycle training?  
    过早停止训练的话, 训练可能还没有达到最佳的,能使得模型更容易提升的学习率. 更推荐的是,选一个较晚的位置停止训练-虽然损失开始下降. 然后找到下降之前的这个epoch数, 重头开始进行这么多epoch数的训练.
 
-22. What is the difference between resnet50 and resnet101?
+22. What is the difference between resnet50 and resnet101?  
     The number 50 and 101 refer to the number of layers in the models. Therefore, ResNet101 is a larger model with more layers versus ResNet50. These model variants are commonly as there are ImageNet-pretrained weights available.
 
-23. What does to_fp16 do?
+23. What does to_fp16 do?  
     This enables mixed-precision training, in which less precise numbers are used in order to speed up training.
 
 [Back to contents page](index.md)
