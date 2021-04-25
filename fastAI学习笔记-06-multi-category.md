@@ -104,7 +104,6 @@ df.head()
 Pytoch和fastai有两个主要的类,用于表示和访问一个数据集或验证.
 
 - `Dataset`::      一个集合,返回的是单个数据项 - 从因变量和从变量构成的一个元组.
-
 - `DataLoader`::   一个提供小批量流的一个迭代器,每个小批量都是一对独立变量和一系列因变量的对
 
 在这个基础上,fastai提供了两个类,将训练集和验证集联系到一起.
@@ -273,7 +272,7 @@ def binary_cross_entropy(inputs, targets):
 
 PyTorch 已经提供了这个函数. 实际上它提供了很多个版本, 名字很有误导性.
 
-```F.bainary_cross_entropy``` 和它的模型等效的```nn.BCELoss``` 可以计算独热编码目标的交叉熵, 但是没有取```sigmoid```.
+`F.bainary_cross_entropy`和它的模型等效的`nn.BCELoss` 可以计算独热编码目标的交叉熵, 但是没有取`sigmoid`.
 一般对独热编码的目标, 我们会需要用到```F.binary_cross_entropy_with_logits```(或```nn.BCEWithLogitsLoss ```), 这个函数既取了sigmoid又计算了交叉熵.
 
 对于单标签数据集(如MNIST或宠物数据集), 目标是编码成一个整数的, 它不带初始softmax的版本的等效损失函数是```F.nll_loss```(或```nn.NLLLoss```). 带初始softmax的版本的等效损失函数是```F.cross_entropy```(或```nn.CrossEntropyLoss```).
@@ -576,22 +575,68 @@ fastai会自动尝试从您构建的数据中选择正确的数据: 但是如果
 
 ### Questionnaire
 
-1. How could multi-label classification improve the usability of the bear classifier?
-1. How do we encode the dependent variable in a multi-label classification problem?
-1. How do you access the rows and columns of a DataFrame as if it was a matrix?
-1. How do you get a column by name from a DataFrame?
-1. What is the difference between a `Dataset` and `DataLoader`?
-1. What does a `Datasets` object normally contain?
-1. What does a `DataLoaders` object normally contain?
-1. What does `lambda` do in Python?
-1. What are the methods to customize how the independent and dependent variables are created with the data block API?
-1. Why is softmax not an appropriate output activation function when using a one hot encoded target?
-1. Why is `nll_loss` not an appropriate loss function when using a one-hot-encoded target?
-1. What is the difference between `nn.BCELoss` and `nn.BCEWithLogitsLoss`?
-1. Why can't we use regular accuracy in a multi-label problem?
-1. When is it okay to tune a hyperparameter on the validation set?
-1. How is `y_range` implemented in fastai? (See if you can implement it yourself and test it without peeking!)
+1. How could multi-label classification improve the usability of the bear classifier?  
+    在一个图片中可能一个熊都没有, 或者有多个不同种类的熊, 这样多标签分类器可以用独热编码的方式对图标进行标记,并做多种类的预测.
+
+1. How do we encode the dependent variable in a multi-label classification problem?  
+    使用one-hot encoding的方式对从变量进行多标签标记.
+
+1. How do you access the rows and columns of a DataFrame as if it was a matrix?  
+    可以iloc用下标的方式,如：
+```
+#获取第0列
+df.iloc[ : , 0]
+
+#获取第0行, 第0到3列
+df.iloc[0, 0:3 ]
+```
+
+1. How do you get a column by name from a DataFrame?  
+    通过```df['name']```
+
+1. What is the difference between a `Dataset` and `DataLoader`?  
+    - `Dataset` 是 一个集合,返回的是单个数据项 - 因变量和从变量构成的一个元组.	
+    - `DataLoader`是 一个提供小批量流的一个迭代器,每个小批量都是一对独立变量和一系列因变量的对
+
+1. What does a `Datasets` object normally contain?  
+    一般包含一个训练数据集和一个验证数据集
+
+1. What does a `DataLoaders` object normally contain?  
+    包含一个训练`DataLoader`和一个验证`DataLoader`
+
+1. What does `lambda` do in Python?  
+   是一个匿名函数, 提供一个建议的函数定义.Lambdas are shortcuts for writing functions (writing one-liner functions). It is great for quick prototyping and iterating, but since it is not serializable, it cannot be used in deployment and production.
+
+1. What are the methods to customize how the independent and dependent variables are created with the data block API?  
+    ```get_x```可以指定自定义的因变量获取方式; ```get_y```可以指定自定义的从变量获取方式.
+
+1. Why is softmax not an appropriate output activation function when using a one hot encoded target?  
+    因为`softmax`需要所有的预测值和为1, 并放大激活值之间的差异(因为有```exp```-指数); 但是, 我们很有可能在图像中出现多个我们有把握的对象, 因此将激活的最大和限制为1不好.  另外出于类似的原因, 如果我们认为没有任何类别出现在图像中,我们可能希望总和 *小于* 1
+
+1. Why is `nll_loss` not an appropriate loss function when using a one-hot-encoded target?  
+    因为`nll_loss`只返回一个激活值: 一个项目的单个标签对应的激活值. 这对多标签来说不合理.
+
+1. What is the difference between `nn.BCELoss` and `nn.BCEWithLogitsLoss`?  
+    `nn.BCEWithLogitsLoss`在`nn.BCELoss`的基础上取了sigmoid;  
+    nn.BCELoss does not include the initial sigmoid. It assumes that the appropriate activation function (ie. the sigmoid) has already been applied to the predictions. nn.BCEWithLogitsLoss, on the other hand, does both the sigmoid and cross entropy in a single function.
+
+1. Why can't we use regular accuracy in a multi-label problem?  
+    常规的度量只是取了模型最后层最大的激活,但是在多标签问题中,可能同时存在几个标签. Therefore, a threshold for the activations needs to be set for choosing the final predicted classes based on the activations, for comparing to the target claases.
+
+1. When is it okay to tune a hyperparameter on the validation set?  
+    It is okay to do so when the relationship between the hyper-parameter and the metric being observed is smooth. With such a smooth relationship, we would not be picking an inappropriate outlier.
+
+1. How is `y_range` implemented in fastai? (See if you can implement it yourself and test it without peeking!)  
+    y_range 是通过sigmoid_range实现的:
+```
+    def sigmoid_rage(x, lo, hi):  return  x.sigmoid() * (hi - lo) + lo
+```
+
 1. What is a regression problem? What loss function should you use for such a problem?
+    In a regression problem, the dependent variable or labels we are trying to predict are continuous values. For such problems, the mean squared error loss function is used.
+
 1. What do you need to do to make sure the fastai library applies the same data augmentation to your input images and your target point coordinates?
+    You need to use the correct DataBlock. In this case, it is the PointBlock. This DataBlock automatically handles the application data augmentation to the input images and the target point coordinates.
+
 
 [Back to contents page](index.md)

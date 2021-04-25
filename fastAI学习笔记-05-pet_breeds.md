@@ -95,7 +95,7 @@ batch_tfms=aug_transforms(size=224, min_scale=0.75)
 
 ### Presizing
 
-我们需要将图片对齐成相同的尺寸,这样才能整理到tensor然后传到GPU. 根据性能要求,我们应该尽可能用较少的变换实现扩充,并将图像变换为统一大小.这里有个难题,如果缩小图片来扩充的大小,各种常见的扩充会引入空白区域,降低数据质量,或同时出现这两种情况.例如将图片选择45度，会用空白填充新的边界的角区域,这不会对模型产生任何影响.为了规避这些问题,presizing时会采取这两步策略：
+先在CPU上将图片对齐成相同的尺寸,这样才能整理到tensor然后传到GPU. 根据性能要求,我们应该尽可能用较少的变换实现扩充,并将图像变换为统一大小.这里有个难题,如果缩小图片来扩充的大小,各种常见的扩充会引入空白区域,降低数据质量,或同时出现这两种情况.例如将图片选择45度，会用空白填充新的边界的角区域,这不会对模型产生任何影响.为了规避这些问题,presizing时会采取这两步策略：
 1. 将图片重设为相对更大的尺寸,明显大于目标训练尺寸.
 2. 将所有常见的增强操作（包括调整为最终目标大小）组合为一个，并在处理结束时仅在GPU上执行一次组合操作，而不是单独执行该操作并多次插值。
 
@@ -896,7 +896,7 @@ pets1.summary(path/"images")
     会把第一个较小的值作为第一层的学习率, 第二个较大的作为最后一层的学习率, 中间其他层用这两个值之间均匀等分的值作为学习率.
 
 21. Why is early stopping a poor choice when using 1cycle training?  
-   过早停止训练的话, 训练可能还没有达到最佳的,能使得模型更容易提升的学习率. 更推荐的是,选一个较晚的位置停止训练-虽然损失开始下降. 然后找到下降之前的这个epoch数, 重头开始进行这么多epoch数的训练.
+      过早停止训练的话, 训练可能还没有达到最佳的,能使得模型更容易提升的学习率. 更推荐的是,选一个较晚的位置停止训练-虽然损失开始下降. 然后找到下降之前的这个epoch数, 重头开始进行这么多epoch数的训练.
 
 22. What is the difference between resnet50 and resnet101?  
     The number 50 and 101 refer to the number of layers in the models. Therefore, ResNet101 is a larger model with more layers versus ResNet50. These model variants are commonly as there are ImageNet-pretrained weights available.
