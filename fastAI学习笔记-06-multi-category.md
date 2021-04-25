@@ -631,7 +631,7 @@ fastai会自动尝试从您构建的数据中选择正确的数据: 但是如果
     y_range 是通过sigmoid_range实现的:
     
     ```
-         def sigmoid_rage(x, lo, hi):  return  x.sigmoid() * (hi - lo) + lo
+    def sigmoid_rage(x, lo, hi):  return  x.sigmoid() * (hi - lo) + lo
     ```
 
 1. What is a regression problem? What loss function should you use for such a problem?
