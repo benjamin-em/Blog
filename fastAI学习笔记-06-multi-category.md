@@ -583,16 +583,16 @@ fastai会自动尝试从您构建的数据中选择正确的数据: 但是如果
 
 1. How do you access the rows and columns of a DataFrame as if it was a matrix?  
     可以iloc用下标的方式,如：
-```
-#获取第0列
-df.iloc[ : , 0]
+    ```
+    #获取第0列
+    df.iloc[ : , 0]
 
-#获取第0行, 第0到3列
-df.iloc[0, 0:3 ]
-```
+    #获取第0行, 第0到3列
+    df.iloc[0, 0:3 ]
+    ```
 
 1. How do you get a column by name from a DataFrame?  
-    通过```df['name']```
+    通过`df['name']`
 
 1. What is the difference between a `Dataset` and `DataLoader`?  
     - `Dataset` 是 一个集合,返回的是单个数据项 - 因变量和从变量构成的一个元组.	
@@ -628,9 +628,9 @@ df.iloc[0, 0:3 ]
 
 1. How is `y_range` implemented in fastai? (See if you can implement it yourself and test it without peeking!)  
     y_range 是通过sigmoid_range实现的:
-```
-    def sigmoid_rage(x, lo, hi):  return  x.sigmoid() * (hi - lo) + lo
-```
+    ```
+        def sigmoid_rage(x, lo, hi):  return  x.sigmoid() * (hi - lo) + lo
+    ```
 
 1. What is a regression problem? What loss function should you use for such a problem?
     In a regression problem, the dependent variable or labels we are trying to predict are continuous values. For such problems, the mean squared error loss function is used.
