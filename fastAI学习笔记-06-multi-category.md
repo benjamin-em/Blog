@@ -582,7 +582,8 @@ fastai会自动尝试从您构建的数据中选择正确的数据: 但是如果
     使用one-hot encoding的方式对从变量进行多标签标记.
 
 1. How do you access the rows and columns of a DataFrame as if it was a matrix?  
-    可以iloc用下标的方式,如：
+    可以iloc用下标的方式,如:
+    
     ```
     #获取第0列
     df.iloc[ : , 0]
@@ -628,8 +629,9 @@ fastai会自动尝试从您构建的数据中选择正确的数据: 但是如果
 
 1. How is `y_range` implemented in fastai? (See if you can implement it yourself and test it without peeking!)  
     y_range 是通过sigmoid_range实现的:
+    
     ```
-        def sigmoid_rage(x, lo, hi):  return  x.sigmoid() * (hi - lo) + lo
+         def sigmoid_rage(x, lo, hi):  return  x.sigmoid() * (hi - lo) + lo
     ```
 
 1. What is a regression problem? What loss function should you use for such a problem?
