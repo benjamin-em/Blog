@@ -15,3 +15,5 @@ You can use the [first page editor on GitHub](https://github.com/EEEmien/emien.g
 [fastAI学习笔记-chapter5-pet_breeds](fastAI学习笔记-05-pet_breeds.md)
 
 [fastAI学习笔记-chapter6-multi-category](fastAI学习笔记-06-multi-category.md)
+
+[fastAI学习笔记-chapter7-sizing-and-tta](fastAI学习笔记-07-sizing_and_tta.md)
