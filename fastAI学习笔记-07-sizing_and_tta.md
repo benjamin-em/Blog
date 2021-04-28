@@ -270,3 +270,84 @@ learn = Learn(dls, model, loss_func=CrossEntropyLossFlat(),
               metrics=accuracy, cbs=Mixup())
 lean.fit_one_cycle(5, 3e-3)
 ```
+
+很明显, 用“混合”的数据对模型训练显会变得更困难, 因为这更难看清每个图像中是什么. 并且模型必须预测每个图像的两个标签, 同时还要指出每个的权重.  但是过拟合应该不再是问题了, 因为在每个epoch 不是同一图像, 而是两个图像的随机组合(两次组合到同样的图像概率非常低). 
+
+相比其他的扩充方法, 混合法要获得更好的准确率, 需要的epoch 会多很多. 可以用 [fastai 仓库](https://github.com/fastai/fastai)中*examples/train_imagenette.py* 脚本使用Mixup和不使用Mixup跑得试试. 
+
+Mixup有一点值得一提 - 还能应用于图片之外的其他数据.  实际上, 已经有人在他们的模型中的激活值用Mixup收到了很好的效果, 不只是用于输入值, 这就使得Mixup也可以用于NLP 和其他数据类型. 
+
+Mixup 也解决了另外一个不易察觉的问题, 之前的模型不可能得到完美的损失值.  问题原因在于, 我们的标签是一些1和0, 但是输出的softmax和sigmoid值永远不可能等于1或0.  这意味着训练模型会使我们的激活值越来越接近这些值. 我们训练的epoch越多, 我们的激活值就变得越极端. 
+
+使用Mixup就不再有这个问题, 因为当我们正好与另外一个具有相同种类的图片混合时, 我们的标签只会是1或0. 其他的情况则会是一个线性组合, 例如前面的提到的教堂和加油站的0.7和0.3 .
+
+但与有个与此相关的问题, Mixup是“碰巧”使标签大于0或小于1. 也就是说, 我们没有明确告诉模型要以这种方式更改标签. 因此, 如果要使标签更接近或远离0和1, 我们必须更改Mixup的数量 - 这也将更改数据扩充的数量, 这可能不是我们想要的. 不过有一种方法可以直接处理这个问题, 即标签平滑处理. 
+
+### Label Smoothing
+
+在损失值的理论表达式中, 对于分类问题, 我们的目标值使用的是独热编码(在实践中, 为了节省内存, 更倾向于避免这样, 但计算出的损失值, 与使用独热编码的损失值相同).  这意味着, 训练的模型, 除了训练让其返回1之外的所以种类, 都会返回0. 即使0.9999 已经足够好, 模型还是会计算梯度, 然后学习预测更高概率的激活. 这会导致有过拟合的倾向, 并会得出一个推导中的模型, 这个模型得不出有意义的概率: 即使不是非常确定, 它也总是会预测为1, 因为模型就是以这种方式训练的. 
+
+如果数据不是完美的标记, 这将会非常有害.  在第二章熊的分类器中, 可以看到有些图像被错误的标记了或包含了两种熊. 一般情况下, 你的数据不会是完美的. 即使是认为标记的, 人们也可能犯错, 或对图像产生歧义. 
+
+我们可以将所有的1用一个稍微比1小的数字代替, 把0用一个稍微比0 大的数字代替,  然后在训练. 这就叫做平滑标记. 平滑标记通过使得模型减少一点信任度, 使你的训练更具有鲁棒性 - 容错性更好. 结果将是一个可以更好地推广的模型. 
+
+标签平滑实际原理:  先创建独热编码标签, 然后把0替换成 `ϵ/N` (分子是希腊字母 epsilon,  [paper that introduced label smoothing](https://arxiv.org/abs/1512.00567) ), 分母N 是种类的总数,  `ϵ` 是一个参数(通常是0.1, 也就是说让标签减少10%的信任. ) 为了使所有的标签和为1, 所以用`1−ϵ+ϵ/N` 替换1.  这样就不会鼓励模型过于自信地预测.  在imagenette的例子中, 有10个种类, 目标值就变成这样(这里目标对应的索引序号是3)
+
+```
+[0.01, 0.01, 0.01, 0.91, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+```
+在实践中, 一半不想用独热编码标记, 不过好在我们不需要(使用独热编码, 只是为了方便解释什么是标签平滑, 并且更直观)
+
+在实际应用中, 只需要在调用`Learner`时换个损失函数即可:
+
+```
+model = xresnet50(n_out=dls.c)
+learn = Learn(dls, model, loss_func=LabelSmoothingCrossEntropy(),
+                          metrics=accuracy)
+learn.fit_one_cycle(5, 3e-3)
+```
+和用Mixup类似, 刚开始使用标签平滑时, 一般不会看到明显的提升, 直到训练很多个周期以后. 
+
+
+
+## Conclusion
+
+You have now seen everything you need to train a state-of-the-art model in computer vision, whether from scratch or using transfer learning. Now all you have to do is experiment on your own problems! See if training longer with Mixup and/or label smoothing avoids overfitting and gives you better results. Try progressive resizing, and test time augmentation.
+
+Most importantly, remember that if your dataset is big, there is no point prototyping on the whole thing. Find a small subset that is representative of the whole, like we did with Imagenette, and experiment on it.
+
+In the next three chapters, we will look at the other applications directly supported by fastai: collaborative filtering, tabular modeling and working with text. We will go back to computer vision in the next section of the book, with a deep dive into convolutional neural networks in
+
+## Questionnaire
+
+1. What is the difference between ImageNet and Imagenette? When is it better to experiment on one versus the other?
+
+1. What is normalization?
+
+1. Why didn't we have to care about normalization when using a pretrained model?
+
+1. What is progressive resizing?
+
+1. Implement progressive resizing in your own project. Did it help?
+
+1. What is test time augmentation? How do you use it in fastai?
+
+1. Is using TTA at inference slower or faster than regular inference? Why?
+
+1. What is Mixup? How do you use it in fastai?
+
+1. Why does Mixup prevent the model from being too confident?
+
+1. Why does training with Mixup for five epochs end up worse than training without Mixup?
+
+1. What is the idea behind label smoothing?
+
+1. What problems in your data can label smoothing help with?
+
+1. When using label smoothing with five categories, what is the target associated with the index 1?
+
+1. What is the first step to take when you want to prototype quick experiments on a new dataset?
+
+
+
+[Back to contents page](index.md)
