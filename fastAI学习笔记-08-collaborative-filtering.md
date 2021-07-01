@@ -257,6 +257,135 @@ x.shape
 
 > torch.Size([64, 2])
 
+既然我们已经定义了架构并创建了我们的参数矩阵, 我们需要创建一个`Leaner`来优化我们的模型. 在之前我们用过特殊的函数, 如`cnn_learner`, 它在特定的应用中帮我们做好了所有设置. 由于我们现在是从头开始, 我们就用普通的`Learner`类:
+
+```
+model = DotProduct(n_users, n_movies, 50)
+learn = Learner(dls, model, loss_func=MSELossFlat())
+```
+
+现在我们准备好了调整模型:
+
+```
+learn.fit_one_cycle(5, 5e-3)
+```
+
+>
+| epoch | train_loss | valid_loss | time  |
+| ----- | ---------- | ---------- | ----- |
+| 0     | 0.993168   | 0.990168   | 00:12 |
+| 1     | 0.884821   | 0.911269   | 00:12 |
+| 2     | 0.671865   | 0.875679   | 00:12 |
+| 3     | 0.471727   | 0.878200   | 00:11 |
+| 4     | 0.361314   | 0.884209   | 00:12 |
+
+对这个模型第一个可以优化的地方是强制使预测值介于0到5之间. 要做到这一点, 只需要使用如下代码中的`sigmoid_range`. 经验发现, 范围稍大于5会更好一点, 所以我们用`(0,5.5)`:
+
+```
+class DotProduct(Module):
+        def __init__(self, n_users, n_movies, n_factors, y_range=(0, 5.5)):
+                self.user_factors = Embedding(n_users, n_factors)
+                self.movie_factors = Embedding(n_movies, n_factors)
+
+        def forward(self, x):
+                users = self.user_factors(x[:, 0])
+                movies = self.movie_factors(x[:, 1])
+                return sigmoid_range((users * movies).sum(dim=1), *self.y_range)
+```
+
+```
+model = DotProduct(n_users, n_movies, 50)
+learn = Learner(dls, model, loss_func=MSELossFlat())
+learn.fit_one_cycle(5, 5e-3)
+```
+>
+| epoch | train_loss | valid_loss | time  |
+| ----- | ---------- | ---------- | ----- |
+| 0     | 0.973745   | 0.993206   | 00:12 |
+| 1     | 0.869132   | 0.914323   | 00:12 |
+| 2     | 0.676553   | 0.870192   | 00:12 |
+| 3     | 0.485377   | 0.873865   | 00:12 |
+| 4     | 0.377866   | 0.877610   | 00:11 |
+
+这是个合理的开头, 不过可以做到更好.  有个很明显的遗漏, 一些用户在其推荐中比其他用户更正面或更负面, 而一些电影正好比其他电影更好或更糟. 但在我们的点积表示中, 我们没法用编码表示这两种情况. 例如当你谈到一部电影时, 可能会说它很科幻, 充满动作, 并且很新, 但是真的没办法说是否大多数人喜欢.
+
+因为这时只有权重weights, 没有偏差bias. 如果我们为每个用户提供单个数字, 并添加到我们的评分中, 然后对每个电影这样做, 那将能很好地处理这个遗漏的部分. 我们先调整我们的模型架构:
+
+```
+class DotProductBias(Module):
+        def __init__(self, n_users, n_movies, n_factors, y_range=（0, 5.5)):
+              self.user_factors = Embedding(n_users, n_factors)
+              self.user_bias = Embedding(n_users, 1)
+              self.movie_factors = Embedding(n_movies, n_factors)
+              self.movie_bias = Embedding(n_movies, 1)
+              self.y_range = y_range
+              
+         def forward(self, x):
+                 users = self.user_factors(x[: 0])
+                 movies = self.movie_factors(x[: 1])
+                 res = (users * movies).sum(dim=1, keepdim=True)
+                 res += self.user_bias(x[:, 0]) + self.movie_bias(x[:,1])
+                 return sigmoid_range(res, *self.y_range)
+```
+
+ 跑的试试:
+
+```
+model = DoProductBias(n_users, n_movies, 50)
+learn = Learner(dls, model, loss_func=MSELossFlat())
+learn.fit_one_cycle(5, 5e-3)
+```
+>
+| epoch | train_loss | valid_loss | time  |
+| ----- | ---------- | ---------- | ----- |
+| 0     | 0.929161   | 0.936303   | 00:13 |
+| 1     | 0.820444   | 0.861306   | 00:13 |
+| 2     | 0.621612   | 0.865306   | 00:14 |
+| 3     | 0.404648   | 0.886448   | 00:13 |
+| 4     | 0.292948   | 0.892580   | 00:13 |
+
+没变好, 而是变差了(至少在训练最后是这样). 为什么会这样呢, 如果仔细看这两次训练, 我们会发现, 验证损失在中途不再变好, 而是开始变差. 很明显, 这个意味着过拟合. 在这个例子中, 我们没办法使用数据增强, 所以我们需要用到另一种正则化的技术. 一种有效的方法是_weight decay权重衰减_.
+
+#### Weight Decay
+
+权重衰减, 或L2范式包含在会求所有的权重的平方和的损失函数中. 这是因为当我们计算梯度时, 它将加强这样一个作用, 使权重尽可能小.
+
+为什么这么做可以防止过拟合? 原因是系数越大, 我们损失函数中会具有更尖的波谷. 举个抛物线的基本例子, `y=a*(x**2)`, `a`越大, 抛物线就会越窄.
+
+```
+#hide_input
+#id parabolas
+x = np.linspace(-2,2,100)
+a_s = [1,2,5,10,50] 
+ys = [a * x**2 for a in a_s]
+_,ax = plt.subplots(figsize=(8,6))
+for a,y in zip(a_s,ys): ax.plot(x,y, label=f'a={a}')
+ax.set_ylim([0,5])
+ax.legend();
+```
+
+> ![parabolas](/img/parabolas.jpg)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
