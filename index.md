@@ -17,3 +17,7 @@ You can use the [first page editor on GitHub](https://github.com/EEEmien/emien.g
 [fastAI学习笔记-chapter6-multi-category](fastAI学习笔记-06-multi-category.md)
 
 [fastAI学习笔记-chapter7-sizing-and-tta](fastAI学习笔记-07-sizing_and_tta.md)
+
+[fastAI学习笔记-chapter8-collaborative-filtering](fastAI学习笔记-08-collaborative-filtering.md)
+
+附: [导数、偏导数、方向导数、梯度、梯度下降概念和解释](导数、偏导数、方向导数、梯度、梯度下降概念和解释.md)
