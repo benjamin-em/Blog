@@ -321,11 +321,11 @@ class DotProductBias(Module):
               self.y_range = y_range
               
          def forward(self, x):
-                 users = self.user_factors(x[: 0])
-                 movies = self.movie_factors(x[: 1])
-                 res = (users * movies).sum(dim=1, keepdim=True)
-                 res += self.user_bias(x[:, 0]) + self.movie_bias(x[:,1])
-                 return sigmoid_range(res, *self.y_range)
+              users = self.user_factors(x[: 0])
+              movies = self.movie_factors(x[: 1])
+              res = (users * movies).sum(dim=1, keepdim=True)
+              res += self.user_bias(x[:, 0]) + self.movie_bias(x[:,1])
+              return sigmoid_range(res, *self.y_range)
 ```
 
  跑的试试:
@@ -348,7 +348,7 @@ learn.fit_one_cycle(5, 5e-3)
 
 #### Weight Decay
 
-权重衰减, 或L2范式包含在会求所有的权重的平方和的损失函数中. 这是因为当我们计算梯度时, 它将加强这样一个作用, 使权重尽可能小.
+权重衰减, 或叫L2范式,包含在会求所有的权重的平方和的损失函数中. 这是因为当我们计算梯度时, 它将加强这样一个作用, 使权重尽可能小.
 
 为什么这么做可以防止过拟合? 原因是系数越大, 我们损失函数中会具有更尖的波谷. 举个抛物线的基本例子, `y=a*(x**2)`, `a`越大, 抛物线就会越窄.
 
@@ -366,19 +366,69 @@ ax.legend();
 
 > ![parabolas](/img/parabolas.jpg)
 
+因此, 让我们的模型学习高参数可能导致它适应训练集中所有数据点, 它有着急剧变化的超复杂的函数, 会导致过拟合.
+
+限制权重增长过多意味着阻碍模型的训练, 但它能产生一个更优的归纳状态. 简单回顾这个概念, 权重衰减(简称wd)是一个参数, 它控制我们添加到损失函数的平方和(这里`参数paramets`是所有参数的一个张量.)
+
+```python
+loss_with_wd = loss + wd * (parameters**2).sum()
+```
+
+虽然在实际应用中, 求这么大的和并把它加到损失中很不高效. 但是如果记得一点高中数学, 我们知道`p**2`对`p`求导的结果是`2*p`, 所以将这个很大的和加到我们的损失中实际等效为:
+
+```
+parameters.grad += wd * 2 * parameter
+```
+
+在实际应用中, 由于`wd` 是我们自己选的参数, 我们可以使其两倍大, 因此我们甚至不需要这个等式中的`* 2`. 在FastAi中使用权重衰减, 只需传入`wd`给`fit`或`fit_one_cycle`即可:
+
+```
+model = DotProductBias(n_users, n_movies, 50)
+learn = Learner(dls, model, loss_func_MSELossFlat())
+learn.fit_one_cycle(5, 5e-3, wd=0.1)
+```
+
+>
+| epoch | train_loss | valid_loss | time  |
+| ----- | ---------- | ---------- | ----- |
+| 0     | 0.972090   | 0.962366   | 00:13 |
+| 1     | 0.875591   | 0.885106   | 00:13 |
+| 2     | 0.723798   | 0.839880   | 00:13 |
+| 3     | 0.586002   | 0.823225   | 00:13 |
+| 4     | 0.490980   | 0.823060   | 00:13 |
 
 
 
+## Interpreting Embeddings and Biases
 
+我们的模型已经很有用了, 利用这个我们可以给我们的用户提供电影建议 - 但是看看它发掘了怎样的参数也会很有意思. 最容易详细分析的是偏差bias. 这里看看偏差向量的几个最低值:
 
+```python
+movie_bias = learn.model.movie_bias.squeeze()
+idxs = movie_bias.argsort()[:5]
+[dls.classes['title'][i] for i in idxs]
+```
 
+> ['Children of the Corn: The Gathering (1996)',
+>  'Lawnmower Man 2: Beyond Cyberspace (1996)',
+>  'Beautician and the Beast, The (1997)', 
+>  'Crow: City of Angels, The (1996)', 
+>  'Home Alone 3 (1997)']
 
+这意味着什么. 这表示对于每个电影, 即使某个用户很好地匹配到了它的潜在因子(很快会看到, 通常表示像动作程度, 电影年代等), 他们仍旧一般不喜欢. 我们可以简单地将这些电影按它们的平均评分排名, 但是观察学习偏差, 我们看到一些更有意思的东西.  它告不仅告诉我们一部电影是否是那种人们不喜欢看的类型, 还告诉我们, 即使这个电影是人们喜欢的类型, 但实际观众也并不喜欢. 通过同样的表达, 这里列出最高的偏差:
 
+```python
+idxs = movies_bias.argsort(descending=True)[:5]
+[dls.classes['title'][i] for i in idxs]
+```
 
+> ['L.A. Confidential (1997)', 
+> 'Titanic (1997)', 
+> 'Silence of the Lambs, The (1991)', 
+> 'Shawshank Redemption, The (1994)', 
+> 'Star Wars (1977)']
 
-
-
-
+例如, 即使你一般不喜欢看侦探类型电影, 但你也许会喜欢 _LA Confidential_ !
 
 
 
