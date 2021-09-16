@@ -430,6 +430,37 @@ idxs = movies_bias.argsort(descending=True)[:5]
 
 例如, 即使你一般不喜欢看侦探类型电影, 但你也许会喜欢 _LA Confidential_ !
 
+直接解释嵌入矩阵并不容易. 人们要关注太多因素. 不过有一种技术可以在这种矩阵中抽出最重要的几个底层趋向(directions), 这种技术叫做_主要成分分析(principal component analysis)(PCA)_. 这本书没有详细讲, 不过在[Computational Linear Algebra for Coders](https://github.com/fastai/numerical-linear-algebra)有详细讲解.下图显示了基于两个最强的主要成分分析组件的电影的样子.
+
+```
+#hide_input
+#id img_pca_movie
+#caption Representation of movies based on two strongest PCA components
+#alt Representation of movies based on two strongest PCA components
+g = ratings.groupby('title')['rating'].count()
+top_movies = g.sort_values(ascending=False).index.values[:1000]
+top_idxs = tensor([learn.dls.classes['title'].o2i[m] for m in top_movies])
+movie_w = learn.model.movie_factors[top_idxs].cpu().detach()
+movie_pca = movie_w.pca(3)
+fac0,fac1,fac2 = movie_pca.t()
+idxs = list(range(50))
+X = fac0[idxs]
+Y = fac2[idxs]
+plt.figure(figsize=(12,12))
+plt.scatter(X, Y)
+for i, x, y in zip(top_movies[idxs], X, Y):
+    plt.text(x,y,i, color=np.random.rand(3)*0.7, fontsize=11)
+plt.show()
+```
+
+> ![img_pca_movie](img/img_pca_movie.jpg)
+
+我们可以在这里看到模型似乎已经发现了经典与流行音乐文化电影的概念, 
+
+
+
+
+
 
 
 
