@@ -19,7 +19,7 @@ from fastai.vision.widgets import *
 书中介绍了使用bing搜索图片，作为数据集来源。但是必应注册API过程太麻烦，尤其是需要信用卡,于是使用书中介绍的[第二种方法](https://course.fast.ai/images),
 duckduckGo.
 
-不过fastAI 中search_images_ddg() 这个API似乎有bug，没办法只能再次迂回。终于找到论坛中找到[一种解决方案](https://forums.fast.ai/t/creating-image-datasets-for-vision-learning/77673/2)，使用jmd_imagescraper包中的的duckduckgo_search()下载
+不过fastAI 中search_images_ddg() 这个API似乎有bug，没办法只能再次迂回。在论坛中找到[一种解决方案](https://forums.fast.ai/t/creating-image-datasets-for-vision-learning/77673/2)，使用jmd_imagescraper包中的的duckduckgo_search()下载
 
 先安装依赖包
 ```
@@ -29,7 +29,7 @@ Path().cwd()
 !pip install -q jmd_imagescraper
 ```
 
-使用jmd_imagescraper下载图片,书中是以熊为例子，我这里以不同动物：老虎狮子，大象，长颈鹿和熊猫为例子。
+使用jmd_imagescraper下载图片,书中是以熊为例子，我这里以不同动物：老虎，狮子，大象，长颈鹿和熊猫为例子。
 ```
 from jmd_imagescraper.core import *
 root = Path().cwd()/"gdrive/MyDrive/images"
@@ -76,18 +76,19 @@ blocks=(ImageBlock, CategoryBlock),
 第一个参数传入的是一个元组，第一个ImageBlock是一个 **独立变量**，第二个CategoryBlock 是一个 **从变量**：
 The independent variable is the thing we are using to make predictions from, and the dependent variable is our target. In this case, our independent variables are images, and our dependent variables are the categories (动物的种类) for each image.  
 
-get_items=get_image_files, 
+`get_items=get_image_files `,
 表示以图片文件目录的形式获取项目。这里我们猜测，其他的方式还可以是从内测读取数据，读取csv表格。  
 
-splitter=RandomSplitter(valid_pct=0.2, seed=42)，
+`splitter=RandomSplitter(valid_pct=0.2, seed=42)`,
 分割出验证集，从函数名都能知道是随机分割验证集的，验证集的比例为20%，随机种子值是42. 固定种子值决定下次运行时，获取的验证集还是那部分数据。
 这里提一下之前章节介绍的，在分割连续一段时间内的数据变化时，验证集不能随机抽取，而应该在尾部截取。原因是随机抽取的值，在预测某一点时，根据前后的值很容易预测到到合理的值，这样验证的意义不大。具体介绍在[第一章](https://colab.research.google.com/github/fastai/fastbook/blob/master/01_intro.ipynb#scrollTo=Ce6UUo-a_WP1): Use Judgment in Defining Test Sets
 
-get_y=parent_label,
+`get_y=parent_label`,
 get_y 表示怎样去获取 **从变量**，这里使用parent_label 表示以文件的父目录名来命名从变量:tiger, lion, elephant, giraffe, panda
 
-item_tfms=Resize(128)，
+`item_tfms=Resize(128)`，
 表示设置默认对不同尺寸和比例的图片进行转换，这里为默认的从中心截取并压缩成128 * 128 pixel 大小，当然在创建DataLoaders之后也可以指定其他图片转换形式:
+
 ```
 bears = DataBlock(
     blocks=(ImageBlock, CategoryBlock), # what kind of date we want to working with - image
@@ -120,7 +121,7 @@ learn.fine_tune(4)
 cnn表示Convolutional Neural Networks - 卷积神经网络的缩写。 
 根据第一章的介绍：resnet是一种标准架构，18代表18层。
 A metric is a function that measures the quality of the model's predictions using the validation set, and will be printed at the end of each epoch. In this case, we're using error_rate, which is a function provided by fastai that does just what it says: tells you what percentage of images in the validation set are being classified incorrectly
-fine_tune是微调，理解不是很多，下次在第一章笔记时再说。
+fine_tune是微调，理解不是很多，下次在第一章(先学的第一章再学的第二章)笔记时再说。
 
 训练完后可以以图表的形式打印识别的准确率，这个图表叫confusion matrix
 ```
@@ -148,6 +149,7 @@ cleaner
 然后把无效图片(如上图中中的机械长颈鹿)删除,这里又出现了unlink() 这个方法，unlink 实际是个删除函数.  
 我的理解：当我们在上图中图片下拉框选择delete是，实际就是把该图片路径或索引放到了cleaner的"delete"容器中(可能是个列表之类的).
 下面的代码就是遍历这个delete容器，然后用unlink这个方法把这个索引对应的图片删掉.
+
 ```
 for idx in cleaner.delete(): cleaner.fns[idx].unlink()
 ```
@@ -160,8 +162,9 @@ for idx,cat in cleaner.change(): shutil.move(str(cleaner.fns[idx]), path/cat)
 这个是否意味着clean之后，训练过的模型也跟着有所变化呢？如果不是，那做了数据清洗后是不是得重新执行训练才能提高模型的准确度？***
 
 ### 模型的使用
-书中介绍到了从代码一直到网页应用的过程. 我暂时对网页应用不感兴趣，后面有这样的需求再回过偷来学习吧，但是这里预测模型的使用还是比较有用。
+书中介绍到了从代码一直到网页应用的过程. 我暂时对网页应用不感兴趣，后面有这样的需求再回过头来学，但是这里预测模型的使用还是比较有用。
 导出.pkl文件，这也就是训练好的模型。它应该包含两部分：Remember that a model consists of two parts: the architecture and the trained parameters. 
+
 ```
 learn.export()
 
