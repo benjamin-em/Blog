@@ -85,7 +85,7 @@ array([[  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   
        [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
        [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]], dtype=uint8)
 ```
-tensor和arrary几乎表示得一模一样,不过使用tensor计算时会调用到GPU而不是CPU,这会大大加快并行计算速度,按原文的说法，另外tensor也包含更丰富的功能
+tensor和arrary几乎表示得一模一样,不过使用tensor计算时会调用到GPU而不是CPU,这会大大加快并行计算速度,按原文的说法, tensor也包含更丰富的功能
 ```
 tensor(im3)[4:10,4:10]
 ```
@@ -252,7 +252,9 @@ valid_3_dist, valid_3_dist.shape
 
 神奇的是,valid_3_tens是一个三阶张量,而mean3是一个二阶张量,书中说的是
 >it tries to perform a simple subtraction operation between two tensors of different ranks, will use broadcasting.
-两个不同阶数的张量之间计算会使用到"广播"的机制,这让我联想到了python的map()函数
+>两个不同阶数的张量之间计算会使用到"广播"的机制  
+
+这让我联想到了python的map()函数
 ```
 def f(x): return x * x
 r = map(f, [1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -413,7 +415,7 @@ show_preds(preds)
 ```
 ![show_pred](img/show_preds.jpg)
 #### 第三步：计算loss：
-```
+```python
 # mse() 为 ((preds-targets)**2).mean().sqrt()
 # preds是传入不同的时刻t, a*(t**2) + (b*t) + c的计算的speed值, 
 # targes,在不同的t测量出来的speed. 
@@ -507,7 +509,8 @@ plt.tight_layout()
 ```
 train_x = torch.cat([stacked_threes, stacked_sevens]).view(-1, 28*28)
 ```
-```train_x``` 也就是[笔记2](fastAI学习笔记-02-production.md)中提到的**独立变量(因变量)** ,我们是将所有3和7连起来,并将每张28\*28的矩阵转成一个28\*28的向量(列表) - 联想一下C语音二维数组转成一维数组.也就是原文说的把一个矩阵(为元素)的列表(三阶)转成了一个以向量为元素的列表.下面输出```stacked_sevens```, ```stacked_threes```和```train_x```的形状可以看出,三阶转成了2阶.
+```train_x``` 也就是[笔记2](fastAI学习笔记-02-production.md)中提到的**独立变量(因变量)** ,我们是将所有3和7连起来,并将每张28\*28的矩阵转成一个28\*28的向量(列表) - 联想一下C语言二维数组转成一维数组.也就是原文说的把一个矩阵(为元素)的列表(三阶)转成了一个以向量为元素的列表.下面输出```stacked_sevens```, ```stacked_threes```和```train_x```的形状可以看出,三阶转成了2阶.
+
 ```
 stacked_sevens.shape
 ```
@@ -524,8 +527,9 @@ train_x.shape
 >torch.Size([12396, 784])
 
 需要标记每张图片, 用```1```来标记3的所有图片, ```0```来标记图片7的所有图片：
-```
+```python
 train_y = tensor([1]*len(threes) + [0]*len(sevens)).unsqueeze(1)
+# 上面的unsqueeze(1) 表示增加一个维度 https://zhuanlan.zhihu.com/p/86763381
 train_x.shape,train_y.shape
 ```
 >(torch.Size([12396, 784]), torch.Size([12396, 1]))
@@ -558,18 +562,20 @@ weights.shape
 也就是说生成了一个长度为784的向量weight，稍后会用这个向量(列数为1的矩阵)做乘法.
 
 
-线性函数,只有这一个参数还不够```y=wx+b```这样的一次函数还有一个偏移量```b```所以还需要初始化一个随机数
-```
+线性函数只有这一个参数还不够. ```y=wx+b```这样的一次函数还有一个偏移量```b```所以还需要初始化一个随机数
+```python
 bias = init_params(1)
 ```
 在神经网络中,式子```y=wx+b```里的```w```叫 _wights(权重)_, ```b```叫 _bias(偏移)_  
 试一下计算第一张图片的预测：
+
 ```
 (train_x[0]*weights.T).sum() + bias
 ```
 tensor([25.2817], grad_fn=<AddBackward0>)
 
 ***疑问，为什么不是每个像素都有一个```bias```，而是一个图片的像素都是一个bias***  
+
 >在[fastAI 论坛发帖](https://forums.fast.ai/t/in-04-mnist-basics-why-bias-is-not-for-every-independent-pixel/84769),[jimmiemunyi](https://forums.fast.ai/u/jimmiemunyi) 拿了一个神经元的图解释,确实是对sum加bias, 但似乎没有解释为什么bias加在这个地方.
 
 现在要计算所有图片的预测值,在python中,用矩阵的乘法比循环会快很多,操作符```@```表示矩阵相乘.
@@ -594,7 +600,7 @@ train_y.T
 ```
 >tensor([[1, 1, 1,  ..., 0, 0, 0]])
 
-在定义train_y时,前几个标记的是1，后面标记的是0, .T 是转置矩阵
+在定义train_y时,前几个标记的是1，后面标记的是0,` .T `是转置矩阵
 
 
 ```
@@ -625,12 +631,13 @@ preds = linear1(train_x)
 可以看到调整了weights后,输出结果没有任何变化.因为函数的梯度是它的斜率或陡度,即函数值变化的幅度除以输入值改变的幅度：
 ```(y_new - y_old)/(x_new - x_old)```. 当x_new和x_old非常接近时,就可以很好的渐变.但是从输出来看,只有预测值从3变为7或由7变为3时,预测精度才会有变化。但因为weights 从x_old到x_new的变化太小,不足以导致y的变化.所以```(y_new - y_old)```几乎始终为0.换句话说,几乎所有地方的梯度都为0.
 但是我们需要使用SGD改进模型,梯度都0的话就不能改进这个模型了.  
-为了解决这个问题,我们要用一个损失函数,当我们的权重得出更好的预测时,它会返回更好的loss .更好的预测，即：
+为了解决这个问题,我们要用这样的一个损失函数：当我们的权重得出更好的预测时,它会返回更好的loss .更好的预测，即：
 判断为3的可能性越大,分数越高,判断为7的可能性越大(即意味着判断为3的可能性越小)则分数越低.  
 
 损失函数输入的不是图像本身,而是来自模型的预测值.用一个参数prds表示介于0和1之间的值,每个值表示预测为3的可能性.
 损失函数的目的是衡量预测值和真实值(即target也称为label),他表明图像的实际情况是否真的为3.   
 原文:
+
 > So, for instance, suppose we had three images which we knew were a 3, a 7, and a 3. And suppose our model predicted with high confidence (0.9) that the first was a 3, with slight confidence (0.4) that the second was a 7, and with fair confidence (0.2), but incorrectly, that the last was a 7.   
 
 ~~假设我们有三个图像,分别是3,7,3 并且假设我们模型预测第一为3,可信度是0.9;第二个为7,可信度为0.4;第三个为不为,可信度为0.2 。其中前两个判断真实值一致,而第三个判断错了~~ 
@@ -647,6 +654,7 @@ def mnist_loss(predictions, targets):
 ```
 其中``` torch.where(targets==1, 1-predictions, predictions).mean()```类似于C语言语句```targets == 1 ? 1-predictions : predictions```
 也就是说如果预测为3(即trgts为1)，则取1-predictions表示"错误度". 如果预测不为3，则直接取predictions表示"错误度"，然后取"错误度"的平均值表示损失loss.
+
 ```
 torch.where(trgts==1, 1-prds, prds)
 ```
@@ -666,8 +674,9 @@ mnist_loss(tensor([0.9, 0.4, 0.8]),trgts)
 
 
 ### Sigmoid
-前面提到“用一个参数prds表示介于0和1之间的值”,怎样是prds在0和1直接？Sigmoid函数可以做到这一点.
+前面提到“用一个参数prds表示介于0和1之间的值”,怎样是prds在0和1之间？Sigmoid函数可以做到这一点.
 定义如下
+
 ```
 def sigmoid(x): return 1/(1+torch.exp(-x))
 ```
@@ -678,14 +687,14 @@ plot_function(torch.sigmoid, title='Sigmoid', min=-4, max=4)
 ![Sigmoid](img/Sigmoid_img.jpg)  
 可以看到Sigmoid是一条在0到1之间光滑且单调上升的曲线,这就很容易满足SGD中寻找梯度.
 现在重新定义loss函数：
-```
+
+```python
 def mnist_loss(predictions, targets):
     predictions = predictions.sigmoid()
     return torch.where(targets==1, 1-predictions, predictions).mean()
 ```
 
-我们既然有了一个总体准确性(即前面的```corrects.float().mean().itern()```或```((preds>0.0).float() == train_y).float().mean().item()```),那为什么还要定义损失函数呢？那是因为总体准确性是让人更容易判断模型好坏,而损失函数是为了机器学习.损失函数必须是具有有意义的导数的函数,不能有较大的平坦部分和较大的跳动,而且必须平滑. 这就是为什么我们要设计一个损失函数对置信度的微小变化做出响应。但这也就意味着他不能真正反映我们要实现的目标,而实际是我们实际目标和可使用梯度进行优化的功能之间的折中.损失函数会在数据集的每个项目中计算用到,然后在一个周期结束时,对所有损失值
-进行平均,然后报告这个周期的总体平均值.  
+我们既然有了一个总体准确性(即前面的```corrects.float().mean().itern()```或```((preds>0.0).float() == train_y).float().mean().item()```),那为什么还要定义损失函数呢？那是因为总体准确性是让人更容易判断模型好坏,而损失函数是为了机器学习.损失函数必须是具有有意义的导数的函数,不能有较大的平坦部分和较大的跳动,而且必须平滑. 这就是为什么我们要设计一个损失函数对置信度的微小变化做出响应。但这也就意味着他不能真正反映我们要实现的目标,而实际是我们实际目标和可使用梯度进行优化的功能之间的折中.损失函数会在数据集的每个项目中计算用到,然后在一个周期结束时,对所有损失值进行平均,然后报告这个周期的总体平均值.  
 另一方面,总体准确性指标是我们真正关心的数字.这在每个周期结束时会打印,这些值告诉我们模型的实际运行情况.**在判断模型性能时,我们更关心这个指标而不是损失值**.
 
 ### SGD and Mini-Batches
@@ -693,6 +702,7 @@ def mnist_loss(predictions, targets):
 我们可以每次针对一项数据进行计算,这样一个一个迭代计算,但是这样会很慢.也可以将所有的数据放一个巨大的矩阵中进行计算(在矩阵计算可以很好利用GPU,从而快速计算),但这样内存不够.
 所以折中地,一次计算其中几项数据的平均损失.这个叫 _Mini-Batches_. 一小批中数据的个数叫做 _batch size_
 PyTorch和fastAi提供一个类,可以对数据集进行随机化,并分批.
+
 ```
 coll = range(15)
 dl = DataLoader(coll, batch_size=5, shuffle=True)
@@ -823,6 +833,7 @@ def train_epoch(model, lr, params):
 ```
 上面的```params```将会包含weights和bias,也就是说第二层的for循环会分别对weights和bias进行调整然后将它们的梯度置零.  
 我们还要观察对验证集预测的准确度(accuracy),判断模型好不好,如
+
 ```
 (preds>0.0).float() == train_y[:4]
 ```
@@ -871,16 +882,17 @@ for i in range(20):
 ```
 >0.7895 0.893 0.9331 0.9467 0.9565 0.9589 0.9604 0.9663 0.9687 0.9702 0.9697 0.9716 0.9721 0.9726 0.9736 0.9741 0.9746 0.9746 0.9746 0.9751
 
-准确度越来越高了下面需要创建一个对象来处理SGD的步骤. 这个在PyTorch中被称为 _optimizer_
+准确度越来越高了, 下面需要创建一个对象来处理SGD的步骤. 这个在PyTorch中被称为 _optimizer_
 
 ### Creating an Optimizer
 
 首先我们可以用PyTorch中的nn.Linear模块(module)代替前文中的linear1. _module_ 是一个从```nn.Module```类继承的子类的对象. 此类的对象的行为与标准Python函数相同，因为你可以使用括号来调用它们，并且它们将返回模型的激活值。  
-```nn.Linear```的作用和我们前面自己实现的```init_params```和```linear```两个函数一起一样.它一个类里同时包含了_weihts_ 和 _bias_ . 看看是怎样替代前文的部分：
+```nn.Linear```的作用和我们前面自己实现的```init_params```和```linear```两个函数一起一样. 它一个类里同时包含了_weihts_ 和 _bias_ . 看看是怎样替代前文的部分：
+
 ```
 linear_model = nn.Linear(28*28, 1)
 ```
-每个PyTorch 模块都知道可以训练哪些参数。 它们可通过```parameters```方法获得：
+每个PyTorch 模块都知道可以训练哪些参数. 它们可通过```parameters```方法获得：
 ```
 w,b = linear_model.parameters()
 w.shape,b.shape
@@ -916,7 +928,7 @@ validate_epoch(linear_model)
 ```
 >0.4608
 
-让我们将小的训练循环放入一个函数中，以使事情变得更简单：
+我们将小的训练循环放入一个函数中简化下：
 ```
 def train_model(model, epochs):
     for i in range(epochs):
@@ -941,12 +953,12 @@ fastai还提供了```Learner.fit```，我们可以使用它代替```train_model`
 ```
 dls = DataLoaders(dl, valid_dl)
 ```
-要不适用一个应用(例如cnn_learner)创建一个```Learner```, 我们就需要传入所有这一章创建的元素：```DataLoaders```， 模型，优化器函数(会传入参数给它),损失函数,以及(可选的)任意用来打印指标.
+要适用一个应用(例如cnn_learner)创建一个```Learner```, 我们就需要传入所有这一章创建的元素：```DataLoaders```， 模型，优化器函数(会传入参数给它),损失函数,以及(可选的)任意用来打印的指标.
 ```
 learn = Learner(dls, nn.Linear(28*28,1), opt_func=SGD,
                 loss_func=mnist_loss, metrics=batch_accuracy)
 ```
-现在我们调用```fit```
+现在调用```fit```
 ```
 learn.fit(10, lr=lr)
 ```
@@ -964,8 +976,7 @@ learn.fit(10, lr=lr)
 |8|	0.018122|	0.040853|	0.966143|	00:00|
 |9|	0.017330|	0.037788|	0.968106|	00:00|
 
-
-如你所见，PyTorch和fastai类没有什么神奇之处。 它们只是方便的预包装件，让你更轻松！ （它们还提供了很多额外的功能，我们将在以后的章节中使用。）
+可见，PyTorch和fastai类并不神秘. 它们只是方便的封装, 用起来更轻松！ （它们还提供了很多额外的功能，我们将在以后的章节中使用。）
 通过这些类，我们现在可以将神经网络替换为线性模型。
 
 ### Adding a Nonlinearity
@@ -990,7 +1001,7 @@ b2 = init_params(1)
 
 关键在于```w1```具有30个输出激活（这意味着```w2```必须具有30个输入激活，因此它们匹配）。 这意味着第一层可以构造30个不同的特征，每个特征代表一些不同的像素混合。 您可以将其更改为```30```，以使模型更加复杂。
 
-这个小的函数```res.max(tensor(0.0))```称为整流线性单元(rectified linear unit)，也称为ReLU。 整流线性单位听起来很花哨而且很复杂...但是，实际上，```res.max(tensor(0.0))```除了将每个负数都替换为零之外，没别的。 在PyTorch中也可以使用```F.relu```这个小功能：
+这个小的函数```res.max(tensor(0.0))```称为整流线性单元(rectified linear unit)，也称为ReLU。 整流线性单位听起来花里胡哨的... 但实际上，```res.max(tensor(0.0))```除了将每个负数都替换为零之外，没别的。 在PyTorch中也可以使用```F.relu```这个小功能：
 ```
 plot_function(F.relu)
 ```
@@ -1001,7 +1012,7 @@ plot_function(F.relu)
 
 >在数学上，我们说两个线性函数的组合是另一个线性函数。 因此，我们可以在彼此之上堆叠任意数量的线性分类器，并且它们之间没有非线性函数，它将与一个线性分类器相同。
 
-足够令人惊讶的是，如果可以找到```w1```和```w2```的正确参数，并且使这些矩阵足够大，则可以用数学方式证明此小函数可以以任意较高的精度解决任何可计算的问题。 对于任何任意摆动的函数，我们可以将其近似为一束连接在一起的线。 为了使其更接近摆动功能，我们只需要使用较短的行即可。 这被称为通用逼近定理。 我们在这里拥有的三行代码称为层。 第一和第三层被称为线性层，第二行代码被不同地称为非线性特征或激活函数。
+更惊艳的是, 如果可以找到```w1```和```w2```的正确参数，并且使这些矩阵足够大，则可以用数学方式证明此小函数可以以任意较高的精度解决任何可计算的问题。 对于任何任意摆动的函数，我们可以将其近似为一束连接在一起的线。 为了使其更接近摆动功能，我们只需要使用较短的行即可。 这被称为**通用逼近定理**。 我们在这里拥有的三行代码称为层。 第一和第三层被称为线性层，第二行代码有的称为非线性特征,有的称为激活函数。
 
 就像在上一节中一样，我们可以利用PyTorch将代码替换为更简单的代码：
 ```
@@ -1065,7 +1076,7 @@ learn.fit(40, 0.1)
 |38|	0.014290|	0.020716|	0.982336|	00:00|
 |39|	0.014168|	0.020576|	0.982336|	00:00|
 
-为了节省空间，此处未显示40行输出。 训练过程记录在learn.recorder中，输出表存储在values属性中，因此我们可以将训练的准确性绘制为：
+为了节省空间，这里只显示40行输出。 训练过程记录在learn.recorder中，输出表存储在values属性中，因此我们可以将训练的准确性绘制为：
 ```
 plt.plot(L(learn.recorder.values).itemgot(2));
 ```
@@ -1077,11 +1088,11 @@ learn.recorder.values[-1][2]
 ```
 >0.98233562707901
 
-在这一点上，我们有一些相当神奇的东西：
+这是我们得到一些相当神奇的东西：
 1. 给定正确的参数集，可以以任何精度（神经网络）解决任何问题的函数
 2. 一种为任何函数找到最佳参数集的方法（随机梯度下降）
 
-这就是为什么深度学习可以完成看似神奇的事情，如奇妙的事情。 相信简单技术的这种组合可以真正解决任何问题，是我们发现许多学生必须采取的最大步骤之一。 这似乎太不可思议了—当然，事情应该比这更困难和复杂吗？ 我们的建议：尝试一下！ 我们只是在MNIST数据集上进行了尝试，您已经看到了结果。 而且由于我们从头开始做所有事情（计算梯度除外），所以您知道幕后没有隐藏任何特殊的魔术。
+这就是为什么深度学习可以完成看似神奇像魔法一样的事情。 所以最重要的步骤之一就是:相信简单技术的这种组合真的可以解决“任何”问题。 这似乎太不可思议了—当然，事情应该比这更困难和复杂吗？ 我们的建议：尝试一下！ 我们只是在MNIST数据集上进行了尝试，您已经看到了结果。 而且由于我们从头开始做所有事情（计算梯度除外），所以您知道幕后没有隐藏任何特殊的魔术。
 
 ### Going Deeper
 无需仅停留在两个线性层。 只要我们在每对线性层之间添加非线性，就可以根据需要添加任意数量。 但是，您将学到，模型越深入，在实践中优化参数就越困难。 在本书的后面，您将学到一些简单而有效的技巧，它们可以用来训练更深的模型。
@@ -1122,16 +1133,16 @@ learn.fit_one_cycle(1, 0.1)
 一个神经网络可以有很多层,每一层要么是线性的,要么是非线性的. 我们一般交替地把它们放在一个神经网络里。有时人们将线性层及其随后的非线性都称为单个层. 嗯, 这令人困惑.
 有时，非线性被称为 _激活函数(activation function)_ .
 
-| Term | Meaning|
-|----|---|
-|ReLU | Function that returns 0 for negative numbers and doesn't change positive numbers.
-|Mini-batch | A small group of inputs and labels gathered together in two arrays. A gradient descent step is updated on this batch (rather than a whole epoch).
-|Forward pass | Applying the model to some input and computing the predictions.
-|Loss | A value that represents how well (or badly) our model is doing.
-|Gradient | The derivative of the loss with respect to some parameter of the model.
-|Backward pass | Computing the gradients of the loss with respect to all model parameters.
-|Gradient descent | Taking a step in the directions opposite to the gradients to make the model parameters a little bit better.
-|Learning rate | The size of the step we take when applying SGD to update the parameters of the model.
+| Term | Meaning |
+|----|----|
+|ReLU  | Function that returns 0 for negative numbers and doesn't change positive numbers. |
+|Mini-batch  | A small group of inputs and labels gathered together in two arrays. A gradient descent step is updated on this batch (rather than a whole epoch). |
+|Forward pass  | Applying the model to some input and computing the predictions. |
+|Loss  | A value that represents how well (or badly) our model is doing. |
+|Gradient  | The derivative of the loss with respect to some parameter of the model. |
+|Backward pass  | Computing the gradients of the loss with respect to all model parameters. |
+|Gradient descent  | Taking a step in the directions opposite to the gradients to make the model parameters a little bit better. |
+|Learning rate  | The size of the step we take when applying SGD to update the parameters of the model. |
 
 ### 问题
 1. How is a grayscale image represented on a computer? How about a color image?  
