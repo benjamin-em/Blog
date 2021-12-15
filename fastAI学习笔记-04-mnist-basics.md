@@ -1241,7 +1241,7 @@ learn.fit_one_cycle(1, 0.1)
           for p in params:
              p -= p.gradient * lr
              p.gradient.zer_()
-  
+    
    for i in range(20):
       train_epoch(model, lr, params)
    ```
@@ -1258,6 +1258,5 @@ learn.fit_one_cycle(1, 0.1)
    
 1. The universal approximation theorem shows that any function can be approximated as closely as needed using just one nonlinearity. So why do we normally use more?  
     There are practical performance benefits to using more than one nonlinearity. We can use a deeper model with less number of parameters, better performance, faster training, and less compute/memory requirements.
-
 
 [Back to contents page](index.md)
