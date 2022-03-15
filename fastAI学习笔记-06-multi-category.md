@@ -196,7 +196,7 @@ dsets.train.vocab[idxs]
 用NumPy的array,  PyTorch的tensor, 以及fastai的L类, 我们可以直接用列表或向量索引, 这使得很多代码简洁明了.
 
 目前我们还忽略了```is_valid```这一列, 这意味着```DataBlock```以默认方式随机分割了数据集. 为了显式地选择验证集元素,我们需要定义一个函数(也可以使用fastai 自带的函数或类)然后将这个函数作为```DataBlock```的```splitter```参数传进去. 这个函数需要传入数据项(这里是整个```DataFrame```),并且需要返回两个(或多个)整数列表.
-```
+```python
 def splitter(df):
     train = df.index[~df['is_valid']].tolist()
     valid = df.index[df['is_valid']].tolist()
@@ -587,7 +587,7 @@ fastai会自动尝试从您构建的数据中选择正确的数据: 但是如果
     ```
     #获取第0列
     df.iloc[ : , 0]
-
+    
     #获取第0行, 第0到3列
     df.iloc[0, 0:3 ]
     ```
