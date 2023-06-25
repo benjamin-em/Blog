@@ -1,6 +1,6 @@
 ## FastAI 第2章学习笔记  
-刚开始学习深度学习，从[fastAI的入门课程](https://course.fast.ai/)开始,这个课程很适合小白（虽然要学完对我来说也是个巨大的工程…）,
-也有[论坛](https://forums.fast.ai/c/part1-v4/46)
+[fastAI的入门课程](https://course.fast.ai/),这个课程很适合小白（虽然要学完对也是个巨大的工程…）,
+也有[论坛](https://forums.fast.ai/c/part1-v4/46) 。
 目前学到视频第三节，回过头来做[第二章](https://colab.research.google.com/github/fastai/fastbook/blob/master/02_production.ipynb)的笔记,算是复习,有些地方会复制书中英文原话。
 
 首先安装和导入一些必要的模块
@@ -113,7 +113,7 @@ dls.valid.show_batch(max_n=8, nrows=2, unique=True)
 
 ### 训练模型
 
-我认为真正的大杀器:
+我认为最重要的部分:
 ```
 learn = cnn_learner(dls, resnet18, metrics=error_rate)
 learn.fine_tune(4)
@@ -136,8 +136,7 @@ interp.plot_top_losses(5, nrows=1)
 ```
 这里损失"loss" 是一个术语，用自己话简单理解,就是误判.后面还有"损失函数"等概念.
 
-### 数据清洗
-数据清洗是一个以前听过的术语，不知道这里这么叫是否合适.  
+### 数据清洗  
 FastAI 有个函数ImageClassifierCleaner可以以图形界面的方式让我们手动清理数据，把训练集或验证集中错误无效的数据或错误的数据剔除或重新放到正确的位置。
 
 ```
@@ -147,7 +146,7 @@ cleaner
 ![image_clean](img/image_clean.jpg)
 
 然后把无效图片(如上图中中的机械长颈鹿)删除,这里又出现了unlink() 这个方法，unlink 实际是个删除函数.  
-我的理解：当我们在上图中图片下拉框选择delete是，实际就是把该图片路径或索引放到了cleaner的"delete"容器中(可能是个列表之类的).
+猜测：当我们在上图中图片下拉框选择delete是，实际就是把该图片路径或索引放到了cleaner的"delete"容器中(可能是个列表之类的).
 下面的代码就是遍历这个delete容器，然后用unlink这个方法把这个索引对应的图片删掉.
 
 ```
