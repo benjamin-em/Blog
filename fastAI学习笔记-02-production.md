@@ -1,4 +1,4 @@
-## FastAI 第2章学习笔记  
+## FastAI 第2章学习笔记
 [fastAI的入门课程](https://course.fast.ai/),这个课程很适合小白（虽然要学完对也是个巨大的工程…）,
 也有[论坛](https://forums.fast.ai/c/part1-v4/46) 。
 目前学到视频第三节，回过头来做[第二章](https://colab.research.google.com/github/fastai/fastbook/blob/master/02_production.ipynb)的笔记,算是复习,有些地方会复制书中英文原话。
@@ -16,10 +16,11 @@ from fastai.vision.widgets import *
 
 ### 使用duckduckGo搜索图片
 
+
 书中介绍了使用bing搜索图片，作为数据集来源。但是必应注册API过程太麻烦，尤其是需要信用卡,于是使用书中介绍的[第二种方法](https://course.fast.ai/images),
 duckduckGo.
 
-不过fastAI 中search_images_ddg() 这个API似乎有bug，没办法只能再次迂回。在论坛中找到[一种解决方案](https://forums.fast.ai/t/creating-image-datasets-for-vision-learning/77673/2)，使用jmd_imagescraper包中的的duckduckgo_search()下载
+不过fastAI 中search_images_ddg() 这个API似乎有bug，没办法只能再次迂回。在论坛中找到[一种解决方案](https://forums.fast.ai/t/creating-image-datasets-for-vision-learning/77673/2)，使用jmd_imagescraper包中的的duckduckgo_search()下载 _（2023年注: duckduckgo_search似乎已失效，而search_images_ddg的bug已修复。）_
 
 先安装依赖包
 ```
@@ -39,7 +40,22 @@ animal_types = ('tiger', 'lion', 'elephant', 'giraffe', 'panda')
 for o in animal_types:
   duckduckgo_search(root, o, o, max_results=300)
 ```
-这里duckduckgo_search()第一个参数是下载图片的主路径；第二个参数是主路径下图片存放的目录，我是以搜索关键字作为目录名，没有的话会被自动创建，第三个参数是搜索关键字，第四个参数是下载搜索结果的最大个数.
+这里duckduckgo_search()第一个参数是下载图片的主路径；第二个参数是主路径下图片存放的目录，我是以搜索关键字作为目录名，没有的话会被自动创建，第三个参数是搜索关键字，第四个参数是下载搜索结果的最大个数。如果此方法失效可以尝试书上介绍的API：
+```
+root = Path("animal_image")
+animal_types = ('tiger', 'lion', 'elephant', 'giraffe', 'panda')
+
+if not path.exist(root):
+    root.mkdir()
+    for o in animal_types:
+      dest = (root/o)
+      dest.mkdir(exist_ok=True)
+      results = search_images_ddg(o)
+      download_images(dest, urls=results)
+
+#      如果是bing搜索的，结果是以整个网页内容，下载时应该是
+#      download_images(dest, urls=results.attrgot('contentUrl'))
+```
 
 通过get_image_files()可以获取到目录下所有的图片文件
 ```
@@ -65,19 +81,19 @@ fastAI 有很多内置的dataLoader如第一章中的ImageDataLoaders，TextData
 首先获取一个DataBlock，DataBlock 类似一个模板
 ```
 animals = DataBlock(
-    blocks=(ImageBlock, CategoryBlock), 
+    blocks=(ImageBlock, CategoryBlock),
     get_items=get_image_files,
     splitter=RandomSplitter(valid_pct=0.2, seed=41),
     get_y=parent_label,
-    item_tfms=Resize(128)
+    item_tfms=Resize(128))
 )
 ```
-blocks=(ImageBlock, CategoryBlock), 
+blocks=(ImageBlock, CategoryBlock),
 第一个参数传入的是一个元组，第一个ImageBlock是一个 **独立变量**，第二个CategoryBlock 是一个 **从变量**：
-The independent variable is the thing we are using to make predictions from, and the dependent variable is our target. In this case, our independent variables are images, and our dependent variables are the categories (动物的种类) for each image.  
+The independent variable is the thing we are using to make predictions from, and the dependent variable is our target. In this case, our independent variables are images, and our dependent variables are the categories (动物的种类) for each image.
 
 `get_items=get_image_files `,
-表示以图片文件目录的形式获取项目。这里我们猜测，其他的方式还可以是从内测读取数据，读取csv表格。  
+表示以图片文件目录的形式获取项目。这里我们猜测，其他的方式还可以是从内测读取数据，读取csv表格。
 
 `splitter=RandomSplitter(valid_pct=0.2, seed=42)`,
 分割出验证集，从函数名都能知道是随机分割验证集的，验证集的比例为20%，随机种子值是42. 固定种子值决定下次运行时，获取的验证集还是那部分数据。
@@ -90,23 +106,23 @@ get_y 表示怎样去获取 **从变量**，这里使用parent_label 表示以�
 表示设置默认对不同尺寸和比例的图片进行转换，这里为默认的从中心截取并压缩成128 * 128 pixel 大小，当然在创建DataLoaders之后也可以指定其他图片转换形式:
 
 ```
-bears = DataBlock(
-    blocks=(ImageBlock, CategoryBlock), # what kind of date we want to working with - image
-    get_items=get_image_files, #how to get the items - by files
-    splitter=RandomSplitter(valid_pct=0.2, seed=42), #how to create validation set
-    get_y=parent_label, # how to label these items
-    item_tfms=Resize(128))
-    
-bears = bears.new(item_tfms=Resize(128, ResizeMethod.Squish))
+#bears = DataBlock(
+#    blocks=(ImageBlock, CategoryBlock), # what kind of date we want to working with - image
+#    get_items=get_image_files, #how to get the items - by files
+#    splitter=RandomSplitter(valid_pct=0.2, seed=42), #how to create validation set
+#    get_y=parent_label, # how to label these items
+#    item_tfms=Resize(128))
+
+animals = animals.new(item_tfms=Resize(128, ResizeMethod.Squish))
 ```
-其他转换形式有拉伸/压缩，边缘填充，随机截取(可以多个部位)。转换时还可以对图片进行翻转，明暗变化，局部拉伸等等。  
+其他转换形式有拉伸/压缩，边缘填充，随机截取(可以多个部位)。转换时还可以对图片进行翻转，明暗变化，局部拉伸等等。
 
 从root目录装载数据，这一步才是真正把图片装载(转换)成数据
 ```
-dls = bears.dataloaders(root)
+dls = animals.dataloaders(root)
 
-#显示验证集(valid)中8个图片，2分两行显示. 
-#We used unique=True to have the same image repeated with different versions of this RandomResizedCrop transform. 
+#显示验证集(valid)中8个图片，2分两行显示.
+#We used unique=True to have the same image repeated with different versions of this RandomResizedCrop transform.
 #This is a specific example of a more general technique, called data augmentation.
 dls.valid.show_batch(max_n=8, nrows=2, unique=True)
 ```
@@ -118,7 +134,7 @@ dls.valid.show_batch(max_n=8, nrows=2, unique=True)
 learn = cnn_learner(dls, resnet18, metrics=error_rate)
 learn.fine_tune(4)
 ```
-cnn表示Convolutional Neural Networks - 卷积神经网络的缩写。 
+cnn表示Convolutional Neural Networks - 卷积神经网络的缩写。
 根据第一章的介绍：resnet是一种标准架构，18代表18层。
 A metric is a function that measures the quality of the model's predictions using the validation set, and will be printed at the end of each epoch. In this case, we're using error_rate, which is a function provided by fastai that does just what it says: tells you what percentage of images in the validation set are being classified incorrectly
 fine_tune是微调，理解不是很多，下次在第一章(先学的第一章再学的第二章)笔记时再说。
@@ -136,7 +152,7 @@ interp.plot_top_losses(5, nrows=1)
 ```
 这里损失"loss" 是一个术语，用自己话简单理解,就是误判.后面还有"损失函数"等概念.
 
-### 数据清洗  
+### 数据清洗
 FastAI 有个函数ImageClassifierCleaner可以以图形界面的方式让我们手动清理数据，把训练集或验证集中错误无效的数据或错误的数据剔除或重新放到正确的位置。
 
 ```
@@ -145,7 +161,7 @@ cleaner
 ```
 ![image_clean](img/image_clean.jpg)
 
-然后把无效图片(如上图中中的机械长颈鹿)删除,这里又出现了unlink() 这个方法，unlink 实际是个删除函数.  
+然后把无效图片(如上图中中的机械长颈鹿)删除,这里又出现了unlink() 这个方法，unlink 实际是个删除函数.
 猜测：当我们在上图中图片下拉框选择delete是，实际就是把该图片路径或索引放到了cleaner的"delete"容器中(可能是个列表之类的).
 下面的代码就是遍历这个delete容器，然后用unlink这个方法把这个索引对应的图片删掉.
 
@@ -162,7 +178,7 @@ for idx,cat in cleaner.change(): shutil.move(str(cleaner.fns[idx]), path/cat)
 
 ### 模型的使用
 书中介绍到了从代码一直到网页应用的过程. 我暂时对网页应用不感兴趣，后面有这样的需求再回过头来学，但是这里预测模型的使用还是比较有用。
-导出.pkl文件，这也就是训练好的模型。它应该包含两部分：Remember that a model consists of two parts: the architecture and the trained parameters. 
+导出.pkl文件，这也就是训练好的模型。它应该包含两部分：Remember that a model consists of two parts: the architecture and the trained parameters.
 
 ```
 learn.export()
@@ -180,7 +196,7 @@ learn_inf.predict('images/测试大象.jpg')
 也可以预测上传的图片，执行以下代码会出现上传按钮进行交互
 ```
 btn_upload = widgets.FileUpload()
-btn_upload 
+btn_upload
 ```
 使用上传的数据生成img对象
 ```python

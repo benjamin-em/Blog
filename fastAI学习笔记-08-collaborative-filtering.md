@@ -1,6 +1,6 @@
 ## FastAI 第8章 - Collaborative Filtering Deep Dive
 
->先安装和加载必要的库  
+> 先安装和加载必要的库  
 
 ```
 !pip install -Uqq fastbook
@@ -37,13 +37,13 @@ ratings = pd.read_csv(path/'u.data', delimiter='\t', header= None, names=['user'
 ratings.head()
 ```
 
-|      | user | movie | rating | timestamp |
-| ---: | ---: | ----: | -----: | --------: |
-|    0 |  196 |   242 |      3 | 881250949 |
-|    1 |  186 |   302 |      3 | 891717742 |
-|    2 |   22 |   377 |      1 | 878887116 |
-|    3 |  244 |    51 |      2 | 880606923 |
-|    4 |  166 |   346 |      1 | 886397596 |
+|     | user | movie | rating | timestamp |
+| ---:| ----:| -----:| ------:| ---------:|
+| 0   | 196  | 242   | 3      | 881250949 |
+| 1   | 186  | 302   | 3      | 891717742 |
+| 2   | 22   | 377   | 1      | 878887116 |
+| 3   | 244  | 51    | 2      | 880606923 |
+| 4   | 166  | 346   | 1      | 886397596 |
 
 虽然它包含所有我们需要的信息, 但是可读性不强. 下面是一个人性化的交叉表,展现相同的数据.
 
@@ -114,14 +114,16 @@ movies = pd.read_csv(path/'u.item', delimiter='|', encoding='latin-1', usecols=(
 
 movie.head()
 ```
->
-|      | movie |             title |
-| ---: | ----: | ----------------: |
-|    0 |     1 |  Toy Story (1995) |
-|    1 |     2 |  GoldenEye (1995) |
-|    2 |     3 | Four Rooms (1995) |
-|    3 |     4 | Get Shorty (1995) |
-|    4 |     5 |    Copycat (1995) |
+
+> 
+
+|     | movie | title             |
+| ---:| -----:| -----------------:|
+| 0   | 1     | Toy Story (1995)  |
+| 1   | 2     | GoldenEye (1995)  |
+| 2   | 3     | Four Rooms (1995) |
+| 3   | 4     | Get Shorty (1995) |
+| 4   | 5     | Copycat (1995)    |
 
 这个表可以按照title和前面的`ratings`表合并.
 
@@ -129,14 +131,16 @@ movie.head()
 ratings = ratings.merge(movies)
 ratings.head()
 ```
->
-| user | movie | rating | timestamp |     title |              |
-| ---: | ----: | -----: | --------: | --------: | ------------ |
-|    0 |   196 |    242 |         3 | 881250949 | Kolya (1996) |
-|    1 |    63 |    242 |         3 | 875747190 | Kolya (1996) |
-|    2 |   226 |    242 |         5 | 883888671 | Kolya (1996) |
-|    3 |   154 |    242 |         3 | 879138235 | Kolya (1996) |
-|    4 |   306 |    242 |         5 | 876503793 | Kolya (1996) |
+
+> 
+
+| user | movie | rating | timestamp | title     |              |
+| ----:| -----:| ------:| ---------:| ---------:| ------------ |
+| 0    | 196   | 242    | 3         | 881250949 | Kolya (1996) |
+| 1    | 63    | 242    | 3         | 875747190 | Kolya (1996) |
+| 2    | 226   | 242    | 5         | 883888671 | Kolya (1996) |
+| 3    | 154   | 242    | 3         | 879138235 | Kolya (1996) |
+| 4    | 306   | 242    | 5         | 876503793 | Kolya (1996) |
 
 通过这个表可以创建一个`DataLoaders`对象. 默认地, 第一栏表示用户, 第二栏表示项目(这里指的是电源), 第三栏, 用于评分. 这个例子中, 我们需要要修改`item_name`的值来用电影标题代替ID:
 
@@ -144,19 +148,21 @@ ratings.head()
 dls =  CollabDataLoaders.from_df(ratings, item_name='title', bs=64)
 dls.show_batch()
 ```
->
-|      | user | title                             | rating |
-| ---- | ---- | --------------------------------- | ------ |
-| 0    | 542  | My Left Foot (1989)               | 4      |
-| 1    | 422  | Event Horizon (1997)              | 3      |
-| 2    | 311  | African Queen, The (1951)         | 4      |
-| 3    | 595  | Face/Off (1997)                   | 4      |
-| 4    | 617  | Evil Dead II (1987)               | 1      |
-| 5    | 158  | Jurassic Park (1993)              | 5      |
-| 6    | 836  | Chasing Amy (1997)                | 3      |
-| 7    | 474  | Emma (1996)                       | 3      |
-| 8    | 466  | Jackie Chan's First Strike (1996) | 3      |
-| 9    | 554  | Scream (1996)                     | 3      |
+
+> 
+
+|     | user | title                             | rating |
+| --- | ---- | --------------------------------- | ------ |
+| 0   | 542  | My Left Foot (1989)               | 4      |
+| 1   | 422  | Event Horizon (1997)              | 3      |
+| 2   | 311  | African Queen, The (1951)         | 4      |
+| 3   | 595  | Face/Off (1997)                   | 4      |
+| 4   | 617  | Evil Dead II (1987)               | 1      |
+| 5   | 158  | Jurassic Park (1993)              | 5      |
+| 6   | 836  | Chasing Amy (1997)                | 3      |
+| 7   | 474  | Emma (1996)                       | 3      |
+| 8   | 466  | Jackie Chan's First Strike (1996) | 3      |
+| 9   | 554  | Scream (1996)                     | 3      |
 
 要在PyTorch中用到协同过滤, 我们不能只用交叉报表直接表示, 尤其当我们想让它适用于我们深度学习框架时. 我们可以将电影和用户潜在因子表用简单矩阵表示:
 
@@ -221,8 +227,8 @@ user_factors[3]
 
 ```
 class Example:
-	   def __init__(self, a): self.a = a
-	   def say(self,x) : return f'Hello {self.a}, {x}.'
+       def __init__(self, a): self.a = a
+       def say(self,x) : return f'Hello {self.a}, {x}.'
 ```
 
 这段代码最重要的一段是一个叫`__init__`的方法(读作dunder init). 在Python中, 任何像这样前后加了双下划线的方法会被看做一种特殊的方法. 它表示会有一些与这些方法名有联系的额外的操作. 在这里`__init__`的例子中, 当你创建对象时, Python会自动调用这个方法. 因此, 在这里你可以在创建对象时做任何初始化. 当用户构造类的实例时, 包含的任何参数将被传给`__init__`方法作为参数. 注意, 所有类中定义的任何方法的第一个参数是`self`, 因此, 你可以用这个参数来设置或获取你需要的任何属性:
@@ -241,7 +247,7 @@ class DotProduct(Module):
         def __init__(self, n_users, n_movies, n_factors):
                 self.user_factors = Embedding(n_users, n_factors)
                 self.movie_factors = Embedding(n_movies, n_factors)
-                
+
         def forward(self, x):
                 users = self.user_factors(x[:,0])
                 movies = self.user_factors(x[:,1])
@@ -270,7 +276,8 @@ learn = Learner(dls, model, loss_func=MSELossFlat())
 learn.fit_one_cycle(5, 5e-3)
 ```
 
->
+> 
+
 | epoch | train_loss | valid_loss | time  |
 | ----- | ---------- | ---------- | ----- |
 | 0     | 0.993168   | 0.990168   | 00:12 |
@@ -298,7 +305,9 @@ model = DotProduct(n_users, n_movies, 50)
 learn = Learner(dls, model, loss_func=MSELossFlat())
 learn.fit_one_cycle(5, 5e-3)
 ```
->
+
+> 
+
 | epoch | train_loss | valid_loss | time  |
 | ----- | ---------- | ---------- | ----- |
 | 0     | 0.973745   | 0.993206   | 00:12 |
@@ -319,7 +328,7 @@ class DotProductBias(Module):
               self.movie_factors = Embedding(n_movies, n_factors)
               self.movie_bias = Embedding(n_movies, 1)
               self.y_range = y_range
-              
+
          def forward(self, x):
               users = self.user_factors(x[: 0])
               movies = self.movie_factors(x[: 1])
@@ -335,7 +344,9 @@ model = DoProductBias(n_users, n_movies, 50)
 learn = Learner(dls, model, loss_func=MSELossFlat())
 learn.fit_one_cycle(5, 5e-3)
 ```
->
+
+> 
+
 | epoch | train_loss | valid_loss | time  |
 | ----- | ---------- | ---------- | ----- |
 | 0     | 0.929161   | 0.936303   | 00:13 |
@@ -388,7 +399,8 @@ learn = Learner(dls, model, loss_func_MSELossFlat())
 learn.fit_one_cycle(5, 5e-3, wd=0.1)
 ```
 
->
+> 
+
 | epoch | train_loss | valid_loss | time  |
 | ----- | ---------- | ---------- | ----- |
 | 0     | 0.972090   | 0.962366   | 00:13 |
@@ -396,8 +408,6 @@ learn.fit_one_cycle(5, 5e-3, wd=0.1)
 | 2     | 0.723798   | 0.839880   | 00:13 |
 | 3     | 0.586002   | 0.823225   | 00:13 |
 | 4     | 0.490980   | 0.823060   | 00:13 |
-
-
 
 ## Interpreting Embeddings and Biases
 
@@ -457,23 +467,4 @@ plt.show()
 
 我们可以在这里看到模型似乎已经发现了经典与流行音乐文化电影的概念, 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [Back to contents page](index.md)
-
