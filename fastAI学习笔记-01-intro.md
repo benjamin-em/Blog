@@ -6,7 +6,7 @@
 ### 术语
 
 | Term | Meaning
-| ---- | ---- 
+| ---- | ----
 |Label | The data that we're trying to predict, such as "dog" or "cat"
 |Architecture | The _template_ of the model that we're trying to fit; the actual mathematical function that we're passing the input data and parameters to
 |Model | The combination of the architecture with a particular set of parameters
@@ -26,7 +26,7 @@
 ## 疑问
 **关于fine tune这里有个问题，根据定义，fine tune是对一个已经训练好的模型进行“微调”，用于一个 _不同_ 的任务, 但是很多地方在训练之后，使用模型之前也会进行fine tune**
  如[第二章](https://colab.research.google.com/github/fastai/fastbook/blob/master/02_production.ipynb)中(当然第一章也有很多这样的例子)
- 
+
 ```
 bears = DataBlock(
     blocks=(ImageBlock, CategoryBlock), # what kind of date we want to working with - image
@@ -34,18 +34,22 @@ bears = DataBlock(
     splitter=RandomSplitter(valid_pct=0.2, seed=42), #how to create validation set
     get_y=parent_label, # how to label these items
     item_tfms=Resize(128))
- 
+
 bears = bears.new(
     item_tfms=RandomResizedCrop(224, min_scale=0.5),
     batch_tfms=aug_transforms())
 dls = bears.dataloaders(path)
 
-learn = cnn_learner(dls, resnet18, metrics=error_rate) 
+learn = vision_learner(dls, resnet18, metrics=error_rate)
 
 ```
-以上cnn_learner就是对模型进行针对这个任务(识别熊的种类)进行训练，后面也是用到该任务，下面的fine tune 是否有必要？
+以上vision_learner就是对模型进行针对这个任务(识别熊的种类)进行训练，后面也是用到该任务，下面的fine tune 是否有必要？
 ```
 learn.fine_tune(4)
 ```
+
+2023年注:
+> cnn_learner 已经更名为vision_Leanrner，旧API名称以不推荐使用。
+对于上面的疑问，fune tune确实是对已训练好的模型进行微调。只不过这里“已经训练好的模型”是 dls 套用 resnet18 它本身就可以看作一个预先训练好的模型。
 
 [Back to contents page](index.md)

@@ -131,13 +131,15 @@ dls.valid.show_batch(max_n=8, nrows=2, unique=True)
 
 我认为最重要的部分:
 ```
-learn = cnn_learner(dls, resnet18, metrics=error_rate)
+learn = virsion_learner(dls, resnet18, metrics=error_rate)
 learn.fine_tune(4)
+
+#2023年注: cnn_learner API已经更名为 virsion_learner，功能一样(旧名字目前仍可用)
 ```
 cnn表示Convolutional Neural Networks - 卷积神经网络的缩写。
 根据第一章的介绍：resnet是一种标准架构，18代表18层。
 A metric is a function that measures the quality of the model's predictions using the validation set, and will be printed at the end of each epoch. In this case, we're using error_rate, which is a function provided by fastai that does just what it says: tells you what percentage of images in the validation set are being classified incorrectly
-fine_tune是微调，理解不是很多，下次在第一章(先学的第一章再学的第二章)笔记时再说。
+fine_tune是微调，理解不是很多，在第一章笔记有说明。
 
 训练完后可以以图表的形式打印识别的准确率，这个图表叫confusion matrix
 ```
@@ -177,7 +179,7 @@ for idx,cat in cleaner.change(): shutil.move(str(cleaner.fns[idx]), path/cat)
 这个是否意味着clean之后，训练过的模型也跟着有所变化呢？如果不是，那做了数据清洗后是不是得重新执行训练才能提高模型的准确度？***
 
 ### 模型的使用
-书中介绍到了从代码一直到网页应用的过程. 我暂时对网页应用不感兴趣，后面有这样的需求再回过头来学，但是这里预测模型的使用还是比较有用。
+书中介绍到了从代码一直到web应用的过程。暂时对web应用不感兴趣，并且可用的web应用部署方式可能发生变化。后面有这样的需求再回过头来看，但是这里预测模型的使用还是比较有用。
 导出.pkl文件，这也就是训练好的模型。它应该包含两部分：Remember that a model consists of two parts: the architecture and the trained parameters.
 
 ```
